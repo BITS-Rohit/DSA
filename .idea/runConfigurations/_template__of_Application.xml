@@ -1,8 +1,15 @@
 <component name="ProjectRunConfigurationManager">
   <configuration default="true" type="Application" factoryName="Application">
     <module name="BTECH" />
+    <selectedOptions>
+      <option name="vmParameters" />
+    </selectedOptions>
     <shortenClasspath name="MANIFEST" />
-    <option name="VM_PARAMETERS" value="--module-path &quot;C:\Users\rohit\Downloads\downloads\openjfx-23_windows-x64_bin-sdk\javafx-sdk-23\lib&quot; --add-modules javafx.controls,javafx.fxml" />
+    <extension name="software.aws.toolkits.jetbrains.core.execution.JavaAwsConnectionExtension">
+      <option name="credential" />
+      <option name="region" />
+      <option name="useCurrentConnection" value="false" />
+    </extension>
     <method v="2">
       <option name="Make" enabled="true" />
     </method>

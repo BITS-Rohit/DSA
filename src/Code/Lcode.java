@@ -6364,25 +6364,56 @@ public class Lcode {
 
     public int maxFreqSum(String s) {
         int[] arr = new int[26];
-        int vow =0 ;
-        int cons =0;
+        int vow = 0;
+        int cons = 0;
 
         // Fill array
-        for(char c : s.toCharArray())arr[c-'a']++;
+        for (char c : s.toCharArray()) arr[c - 'a']++;
 
         // Get freq
-        for(int i =0; i< 26;i++){
-            if (i==(int)'a' -'a' || i ==(int)'e' -'a' ||  i ==(int)'i'  -'a'||  i ==(int)'o' -'a' ||  i ==(int)'u' -'a' )vow=Math.max(vow,arr[i]);
-            else cons=Math.max(cons,arr[i]);
+        for (int i = 0; i < 26; i++) {
+            if (i == (int) 'a' - 'a' || i == (int) 'e' - 'a' || i == (int) 'i' - 'a' || i == (int) 'o' - 'a' || i == (int) 'u' - 'a')
+                vow = Math.max(vow, arr[i]);
+            else cons = Math.max(cons, arr[i]);
         }
-        return cons+vow;
+        return cons + vow;
     }
 
+    // Custom Question for the Bit - manipulation
+    // 1 - find the right most 1 bit place in the given number
+    // ex = 10 - 1010 , right most - 2nd place
+
+    String bits(int n) {
+        // this is the mask we will liek 100 and will do & operator
+        int m = 0;
+        while (1 << m <= n) {
+            if ((n & (1 << m)) != 0) return (m + 1) + "-" + (n & (1 << m));
+            m++;
+        }
+        return "-1";
+    }
+
+    // 2 - find the number which is coming only 1 time and others appears x times
+    int bits_2(int[] arr , int x){
+        int[] btye = new int[8]; // 1 btye is equal to 8 bits
+        for( int n : arr){
+            String s = String.format("%8s", Integer.toBinaryString(n)).replace(' ', '0');
+            int i = 7;
+            for(char c : s.toCharArray()){
+                btye[i]=Character.getNumericValue(c)+btye[i];
+                i--;
+            }
+        }
+        for (int n =0; n < 8; n++)btye[n]%=x;
+        // now the btye array has only the bits those will contribute to the number
+        return -1;
+    }
 
     /// //////////////////////////////////
     public static void main(String[] args) {
         Lcode l = new Lcode();
-        System.out.println(l.findKthNumber(1, 1));
+        System.out.println(l.bits(100));
+//        System.out.println(l.findKthNumber(1, 1));
 //        System.out.println("apple".compareTo("apply"));
 //        System.out.println(l.maximumPossibleSize(new int[]{4,2,5,3,5}));
 //        System.out.println(l.calculateScore(new String[]{"jump","add","add"},new int[]{1,-7,-3}));
