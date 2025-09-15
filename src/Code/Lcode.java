@@ -6409,10 +6409,16 @@ public class Lcode {
         return -1;
     }
 
+
+    int NoOfBits(int n ){
+        return (int)Math.sqrt(n)+1;
+    }
+
     /// //////////////////////////////////
     public static void main(String[] args) {
         Lcode l = new Lcode();
-        System.out.println(l.bits(100));
+        System.out.println(l.NoOfBits(12));
+//        System.out.println(l.bits(100));
 //        System.out.println(l.findKthNumber(1, 1));
 //        System.out.println("apple".compareTo("apply"));
 //        System.out.println(l.maximumPossibleSize(new int[]{4,2,5,3,5}));
