@@ -6394,30 +6394,90 @@ public class Lcode {
     }
 
     // 2 - find the number which is coming only 1 time and others appears x times
-    int bits_2(int[] arr , int x){
+    int bits_2(int[] arr, int x) {
         int[] btye = new int[8]; // 1 btye is equal to 8 bits
-        for( int n : arr){
+        for (int n : arr) {
             String s = String.format("%8s", Integer.toBinaryString(n)).replace(' ', '0');
             int i = 7;
-            for(char c : s.toCharArray()){
-                btye[i]=Character.getNumericValue(c)+btye[i];
+            for (char c : s.toCharArray()) {
+                btye[i] = Character.getNumericValue(c) + btye[i];
                 i--;
             }
         }
-        for (int n =0; n < 8; n++)btye[n]%=x;
+        for (int n = 0; n < 8; n++) btye[n] %= x;
         // now the btye array has only the bits those will contribute to the number
         return -1;
     }
 
 
-    int NoOfBits(int n ){
-        return (int)Math.sqrt(n)+1;
+    int NoOfBits(int n) {
+        return (int) Math.sqrt(n) + 1;
+    }
+
+    int setbits(int n) {
+        int c =0;
+        while (n > 0) {
+            if ( (n >> 1 ) == 1)c++;
+            n = n >> 1;
+        }
+        return c;
+    }
+
+    public int[][] flipAndInvertImage(int[][] image) {
+        for(int[] x : image){
+            int j =0  , e = x.length-1;
+            while (j < e){
+                int t  = x[j];
+                x[j] = x[e];
+                x[e] = t;
+                j++ ;
+                e--;
+            }
+        }
+
+        for (int i = 0; i < image.length; i++) {
+            for (int j = 0; j < image[0].length; j++) {
+                image[i][j] ^=1; // flips the bit
+            }
+        }
+        return image;
+    }
+
+    // 3 - Find out all nums that are primes nums less than n
+    void sieve_of_eratosthenes(int n) {
+        boolean[] isComposite = new boolean[n + 1];
+        isComposite[0] = true;
+        isComposite[1] = true; // 0 and 1 are not prime , hence edge cases
+
+        for (int i = 2; i * i <= n; i++) {
+            if (!isComposite[i]) {
+                for (int j = i * i; j <= n; j += i) {
+                    isComposite[j] = true;
+                }
+            }
+        }
+
+        for (int i = 2; i <= n; i++) {
+            if (!isComposite[i]) System.out.print(i + " ");
+        }
+    }
+
+
+    public List<Integer> grayCode(int n) {
+        List<Integer> result = new ArrayList<>();
+        int total = 1 << n; // 2^n
+        for (int i = 0; i < total; i++) {
+            result.add(i ^ (i >> 1));
+        }
+        return result;
     }
 
     /// //////////////////////////////////
     public static void main(String[] args) {
         Lcode l = new Lcode();
-        System.out.println(l.NoOfBits(12));
+        l.sieve_of_eratosthenes(40);
+//        System.out.println(Integer.toBinaryString(Integer.MAX_VALUE).length());
+//        System.out.println(l.NoOfBits(12));
 //        System.out.println(l.bits(100));
 //        System.out.println(l.findKthNumber(1, 1));
 //        System.out.println("apple".compareTo("apply"));
