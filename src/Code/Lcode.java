@@ -6415,29 +6415,29 @@ public class Lcode {
     }
 
     int setbits(int n) {
-        int c =0;
+        int c = 0;
         while (n > 0) {
-            if ( (n >> 1 ) == 1)c++;
+            if ((n >> 1) == 1) c++;
             n = n >> 1;
         }
         return c;
     }
 
     public int[][] flipAndInvertImage(int[][] image) {
-        for(int[] x : image){
-            int j =0  , e = x.length-1;
-            while (j < e){
-                int t  = x[j];
+        for (int[] x : image) {
+            int j = 0, e = x.length - 1;
+            while (j < e) {
+                int t = x[j];
                 x[j] = x[e];
                 x[e] = t;
-                j++ ;
+                j++;
                 e--;
             }
         }
 
         for (int i = 0; i < image.length; i++) {
             for (int j = 0; j < image[0].length; j++) {
-                image[i][j] ^=1; // flips the bit
+                image[i][j] ^= 1; // flips the bit
             }
         }
         return image;
@@ -6472,10 +6472,68 @@ public class Lcode {
         return result;
     }
 
+    public int[] maxKDistinct(int[] nums, int k) {
+        // ---- 3ms ----
+        Arrays.sort(nums); // ascending
+        int distinctCount =1;
+        for (int i =1; i< nums.length; i++){
+            if (nums[i]!=nums[i-1])distinctCount++;
+        }
+        int s = Math.min(distinctCount,k);
+        int[] arr = new int[s];
+        int j =1;
+        arr[0]=nums[nums.length-1];
+        for(int i =nums.length-2; i >=0 ; i--){
+            if (j==s)break;
+            if (nums[i]!=nums[i+1])arr[j++]=nums[i];
+        }
+        return arr;
+        // ---- 4ms ----
+//        Arrays.sort(nums);
+//        List<Integer> list = new ArrayList<>();
+//        list.add(nums[nums.length - 1]); // add largest first
+//
+//        for (int i = nums.length - 2; i >= 0; i--) {
+//            if (nums[i] != nums[i + 1]) {
+//                list.add(nums[i]);
+//            }
+//        }
+//
+//        int size = Math.min(k, list.size());
+//        int[] ans = new int[size];
+//        for (int i = 0; i < size; i++) {
+//            ans[i] = list.get(i);
+//        }
+//      return ans
+        // ---- 4ms ----
+    }
+
+    public boolean[] subsequenceSumAfterCapping(int[] nums, int k) {
+        int n = nums.length;
+        boolean[] result = new boolean[n];
+
+        for (int x = 1; x <= n; x++) {
+            boolean[] dp = new boolean[k + 1];
+            dp[0] = true;
+
+            for (int num : nums) {
+                int val = Math.min(num, x);
+                for (int j = k; j >= val; j--) {
+                    dp[j] = dp[j] || dp[j - val];
+                }
+            }
+            result[x - 1] = dp[k];
+        }
+        return result;
+    }
+
+
     /// //////////////////////////////////
     public static void main(String[] args) {
         Lcode l = new Lcode();
-        l.sieve_of_eratosthenes(40);
+        System.out.println(Arrays.toString(l.subsequenceSumAfterCapping(new int[]{1,2,3,4,5},3)));
+
+//        l.sieve_of_eratosthenes(40);
 //        System.out.println(Integer.toBinaryString(Integer.MAX_VALUE).length());
 //        System.out.println(l.NoOfBits(12));
 //        System.out.println(l.bits(100));

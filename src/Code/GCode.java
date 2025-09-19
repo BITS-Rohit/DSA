@@ -455,9 +455,28 @@ public class GCode {
         return max;
     }
 
+    public int canBeTypedWords(String text, String brokenLetters) {
+
+        int count = 0;
+        for (String word : text.split(" ")) {
+            boolean valid = true;
+            for (char c : word.toCharArray()) {
+                if (brokenLetters.contains(String.valueOf(c))) {
+                    valid = false;
+                    break;
+                }
+            }
+            if (valid) count++;
+        }
+        return count;
+    }
+
+
+
     public static void main(String[] args) {
         GCode g = new GCode();
-        System.out.println(g.removeDuplicateLetters("bcabc"));
+        System.out.println(g.canBeTypedWords("leet code ", "lt"));
+//        System.out.println(g.removeDuplicateLetters("bcabc"));
 
 //        int[] gas = {1, 2, 3, 4, 5};
 //        int[] cost = {3, 4, 5, 1, 2};
