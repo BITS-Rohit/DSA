@@ -6528,6 +6528,140 @@ public class Lcode {
     }
 
 
+    int[][] mt ;
+    int n ;
+    int m ;
+    int[][] dirs = {{-1,0}, {1,0}, {0,-1}, {0,1}}; // pre-defined 4 directions
+    public int longestIncreasingPath(int[][] matrix) {
+        // it may possible the answer can be inside the matrics too
+        // in that we need to check with the DP
+        // to pick or no pick at this route level
+
+        // first we will make it to have TLE via using only recursion
+        mt = matrix;
+        n = matrix.length;
+        m = matrix[0].length;
+
+        int max = 0;
+
+        int[][] dp =  new int[n][m];
+        for (int i =0; i < n ; i++){
+            for(int j =0; j< m ; j++){
+                max = Math.max(max,rec(i , j , dp));
+            }
+        }
+        return max;
+    }
+
+    int rec(int i, int j, int[][] dp) {
+        int max = 1;
+
+        if (dp[i][j]!=0)return dp[i][j];
+        for (int[] dir : dirs) {
+            int x = i + dir[0];
+            int y = j + dir[1];
+
+            if (x < 0 || y < 0 || x >= n || y >= m) continue;
+            if (mt[i][j] < mt[x][y]) { // valid increasing path
+                max = Math.max(max, 1 + rec(x, y, dp));
+            }
+        }
+        return dp[i][j]=max;
+    }
+
+
+    String begin, end;
+    Set<String> dict;
+    List<List<String>> paths;
+
+    public List<List<String>> findLadders(String beginWord, String endWord, List<String> wordList) {
+        begin = beginWord;
+        end = endWord;
+        dict = new HashSet<>(wordList);
+        paths = new ArrayList<>();
+
+        if (!dict.contains(end)) return paths;
+
+        // BFS to build parent map
+        Map<String, List<String>> parentMap = bfs();
+
+        // DFS to reconstruct all paths
+        List<String> path = new ArrayList<>();
+        path.add(end);
+        dfs(end, path, parentMap);
+
+        return paths;
+    }
+
+    // BFS to build parent map
+    private Map<String, List<String>> bfs() {
+        Map<String, List<String>> parentMap = new HashMap<>();
+        Queue<String> queue = new LinkedList<>();
+        queue.add(begin);
+        Set<String> visited = new HashSet<>();
+        visited.add(begin);
+        boolean found = false;
+
+        while (!queue.isEmpty() && !found) {
+            int size = queue.size();
+            Set<String> visitedThisLevel = new HashSet<>();
+
+            for (int i = 0; i < size; i++) {
+                String word = queue.poll();
+                for (String neighbor : getNeighbors(word)) {
+                    if (!visited.contains(neighbor)) {
+                        if (!visitedThisLevel.contains(neighbor)) {
+                            queue.add(neighbor);
+                            visitedThisLevel.add(neighbor);
+                        }
+                        parentMap.computeIfAbsent(neighbor, k -> new ArrayList<>()).add(word);
+                        if (neighbor.equals(end)) found = true;
+                    }
+                }
+            }
+
+            visited.addAll(visitedThisLevel); // mark words visited at this level
+        }
+
+        return parentMap;
+    }
+
+    // Generate all valid neighbors (one letter difference and in dict)
+    private List<String> getNeighbors(String word) {
+        List<String> neighbors = new ArrayList<>();
+        char[] arr = word.toCharArray();
+        for (int i = 0; i < arr.length; i++) {
+            char original = arr[i];
+            for (char c = 'a'; c <= 'z'; c++) {
+                if (c == original) continue;
+                arr[i] = c;
+                String next = new String(arr);
+                if (dict.contains(next)) neighbors.add(next);
+            }
+            arr[i] = original; // restore
+        }
+        return neighbors;
+    }
+
+    // DFS to reconstruct all paths from end to begin
+    private void dfs(String word, List<String> path, Map<String, List<String>> parentMap) {
+        if (word.equals(begin)) {
+            List<String> result = new ArrayList<>(path);
+            Collections.reverse(result); // reverse to get begin->end
+            paths.add(result);
+            return;
+        }
+
+        if (!parentMap.containsKey(word)) return;
+
+        for (String parent : parentMap.get(word)) {
+            path.add(parent);
+            dfs(parent, path, parentMap);
+            path.remove(path.size() - 1); // backtrack
+        }
+    }
+
+
     /// //////////////////////////////////
     public static void main(String[] args) {
         Lcode l = new Lcode();
