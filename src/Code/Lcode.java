@@ -6475,17 +6475,17 @@ public class Lcode {
     public int[] maxKDistinct(int[] nums, int k) {
         // ---- 3ms ----
         Arrays.sort(nums); // ascending
-        int distinctCount =1;
-        for (int i =1; i< nums.length; i++){
-            if (nums[i]!=nums[i-1])distinctCount++;
+        int distinctCount = 1;
+        for (int i = 1; i < nums.length; i++) {
+            if (nums[i] != nums[i - 1]) distinctCount++;
         }
-        int s = Math.min(distinctCount,k);
+        int s = Math.min(distinctCount, k);
         int[] arr = new int[s];
-        int j =1;
-        arr[0]=nums[nums.length-1];
-        for(int i =nums.length-2; i >=0 ; i--){
-            if (j==s)break;
-            if (nums[i]!=nums[i+1])arr[j++]=nums[i];
+        int j = 1;
+        arr[0] = nums[nums.length - 1];
+        for (int i = nums.length - 2; i >= 0; i--) {
+            if (j == s) break;
+            if (nums[i] != nums[i + 1]) arr[j++] = nums[i];
         }
         return arr;
         // ---- 4ms ----
@@ -6528,10 +6528,11 @@ public class Lcode {
     }
 
 
-    int[][] mt ;
-    int n ;
-    int m ;
-    int[][] dirs = {{-1,0}, {1,0}, {0,-1}, {0,1}}; // pre-defined 4 directions
+    int[][] mt;
+    int n;
+    int m;
+    int[][] dirs = {{-1, 0}, {1, 0}, {0, -1}, {0, 1}}; // pre-defined 4 directions
+
     public int longestIncreasingPath(int[][] matrix) {
         // it may possible the answer can be inside the matrics too
         // in that we need to check with the DP
@@ -6544,10 +6545,10 @@ public class Lcode {
 
         int max = 0;
 
-        int[][] dp =  new int[n][m];
-        for (int i =0; i < n ; i++){
-            for(int j =0; j< m ; j++){
-                max = Math.max(max,rec(i , j , dp));
+        int[][] dp = new int[n][m];
+        for (int i = 0; i < n; i++) {
+            for (int j = 0; j < m; j++) {
+                max = Math.max(max, rec(i, j, dp));
             }
         }
         return max;
@@ -6556,7 +6557,7 @@ public class Lcode {
     int rec(int i, int j, int[][] dp) {
         int max = 1;
 
-        if (dp[i][j]!=0)return dp[i][j];
+        if (dp[i][j] != 0) return dp[i][j];
         for (int[] dir : dirs) {
             int x = i + dir[0];
             int y = j + dir[1];
@@ -6566,7 +6567,7 @@ public class Lcode {
                 max = Math.max(max, 1 + rec(x, y, dp));
             }
         }
-        return dp[i][j]=max;
+        return dp[i][j] = max;
     }
 
 
@@ -6661,11 +6662,181 @@ public class Lcode {
         }
     }
 
+    String sc_min;
+
+    public String[] spellchecker(String[] wordList, String[] queries) {
+        Map<String, String> map = new HashMap<>();
+        String[] result = new String[queries.length];
+        Set<String > ex = new HashSet<>();
+        Set<Integer> vowels = Set.of(0, 4, 8, 14, 20);
+        int j = 0;
+        for (String word : wordList) {
+            map.putIfAbsent(word.toLowerCase() + "#", word + "#" + j); // Extra space for Bug fix for word = yellow to be directly given
+            ex.add(word);
+            j++;
+        }
+
+        System.out.println(map);
+
+        j = 0;
+        for (String query : queries) {
+            if (ex.contains(query)) {
+                result[j++] = query; // exact word handles
+                System.out.println("Direct Case Found");
+            } else if (map.containsKey(query.toLowerCase() + "#")) {
+                System.out.println("indirect");
+                String candidate = map.get(query.toLowerCase() + "#");
+                result[j++] = candidate.split("#")[0];
+            } else {
+                sc_min = ""; // reset
+                sc_rec(map, 0, query.toCharArray(), vowels);
+                result[j++] = sc_min.isEmpty() ? "" : sc_min.split("#")[0];
+            }
+        }
+        return result;
+    }
+
+    private void sc_rec(Map<String, String> map, int i, char[] ch, Set<Integer> vowels) {
+        if (i == ch.length) {
+            String s = new String(ch);
+            s = map.getOrDefault(s.toLowerCase() + "#", "");
+            // Min string found compute , min = string + idx as key
+            if (!s.isEmpty())
+                if (sc_min.isEmpty() || Integer.parseInt(sc_min.split("#")[1]) > Integer.parseInt(s.split("#")[1]))
+                    sc_min = s;
+            return;
+        }
+
+        int idx = Character.toLowerCase(ch[i]) - 'a';
+        if (!vowels.contains(idx)) sc_rec(map, i + 1, ch, vowels);
+        else {
+            for (int x : vowels) {
+                ch[i] = (char) ('a' + x);
+                sc_rec(map, i + 1, ch, vowels);
+            }
+        }
+    }
+
+    public boolean judgePoint24(int[] cards) {
+        List<Double> list = new ArrayList<>();
+        for (int x : cards) list.add((double) x);
+        return game24(list);
+    }
+
+    boolean game24(List<Double> cards) {
+        if (cards.size() == 1) {
+            return Math.abs(cards.get(0) - 24.0) < 1e-6;
+        }
+
+        for (int i = 0; i < cards.size(); i++) {
+            for (int j = 0; j < cards.size(); j++) {
+                if (i == j) continue;
+
+                List<Double> next = new ArrayList<>();
+                // keep the unused numbers
+                for (int k = 0; k < cards.size(); k++) {
+                    if (k != i && k != j) next.add(cards.get(k));
+                }
+
+                double a = cards.get(i), b = cards.get(j);
+
+                // try all operations
+                for (double x : new double[]{a + b, a - b, a * b}) {
+                    next.add(x);
+                    if (game24(next)) return true;
+                    next.remove(next.size() - 1);
+                }
+                if (Math.abs(b) > 1e-6) {
+                    next.add(a / b);
+                    if (game24(next)) return true;
+                    next.remove(next.size() - 1);
+                }
+                if (Math.abs(a) > 1e-6) {
+                    next.add(b / a);
+                    if (game24(next)) return true;
+                    next.remove(next.size() - 1);
+                }
+            }
+        }
+        return false;
+    }
+
+    public long countSubarrays(int[] nums, int minK, int maxK) {
+        if (nums.length==1)return 0;
+        // Brute force , lets use Queue
+        long count =0 ;
+        for (int i = 0; i < nums.length; i++) {
+            int continuous = 0;
+            int ci =0 , ca=0;
+            for (int j = i+1; j < nums.length; j++) {
+                ci=Math.min(ci,nums[i]);
+                ca=Math.max(ca,nums[i]);
+               if ( ci==minK && ca ==maxK){
+                   count++;
+                   continuous++;
+               }
+               else {
+                   count+=continuous;
+                   continuous=0;
+               }
+            }
+        }
+//        Queue<int[]> queue = new ArrayDeque<>();
+//
+//        for(int i =0; i<nums.length; i++)queue.add(new int[]{nums[i], i});
+//        int curMin =  Integer.MAX_VALUE, curMax =Integer.MIN_VALUE;
+//        while(!queue.isEmpty()){
+//            int[] x = queue.poll();
+//            curMin = Math.min(curMin, x[0]);
+//            curMax = Math.max(curMax, x[0]);
+//
+//            if (curMin == minK && curMax== maxK)count++;
+//        }
+        return count;
+    }
+
+
+
+    public String pushDominoes(String dominoes) {
+        // Key observation we just need to check for the adjacent dominos
+        // Left direction we need to see R
+        // Right direction we need to L
+        // Standing dominos gives no force same as outofboundindex = 0
+        // after getting left and right dirs we need to see if the currennt
+        //     standing domino has which larger force
+        //     then it will be inclined to that dir
+
+        // Right now I can see these observation , if got to know anything would have to rewrite the algo , God Damn dude
+        StringBuilder sb =  new StringBuilder();
+        for(int i=0; i< dominoes.length(); i++){
+            if (dominoes.charAt(i)=='.'){
+                int left = 0 , right =0;
+                if ( sb.isEmpty() && i > 0 && dominoes.charAt(i - 1) == 'R')left++;
+                else if (sb.charAt(i-1)=='R')left++;
+                if (i+1< dominoes.length() && dominoes.charAt(i+1)=='L')right++;
+
+                if (left==right)sb.append('.');
+                else if (left>right)sb.append('R');
+                else sb.append('L');
+            }
+            else sb.append(dominoes.charAt(i));
+        }
+        return sb.toString();
+    }
+
+
 
     /// //////////////////////////////////
     public static void main(String[] args) {
         Lcode l = new Lcode();
-        System.out.println(Arrays.toString(l.subsequenceSumAfterCapping(new int[]{1,2,3,4,5},3)));
+
+//        String[] w = {"ae", "aa"};
+//        String[] q = {"UU"};
+//        System.out.println();
+//        System.out.println(Arrays.toString(l.spellchecker(w, q)));
+//        System.out.println("Expected : \"\" ");
+
+//        System.out.println(Arrays.toString(l.subsequenceSumAfterCapping(new int[]{1, 2, 3, 4, 5}, 3)));
 
 //        l.sieve_of_eratosthenes(40);
 //        System.out.println(Integer.toBinaryString(Integer.MAX_VALUE).length());
