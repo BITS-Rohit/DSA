@@ -6805,8 +6805,6 @@ public class Lcode {
         // after getting left and right dirs we need to see if the currennt
         //     standing domino has which larger force
         //     then it will be inclined to that dir
-
-        // Right now I can see these observation , if got to know anything would have to rewrite the algo , God Damn dude
         StringBuilder sb =  new StringBuilder();
         for(int i=0; i< dominoes.length(); i++){
             if (dominoes.charAt(i)=='.'){
