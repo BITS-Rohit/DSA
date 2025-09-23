@@ -117,17 +117,6 @@ public class Lcode {
         return min;
     }
 
-    public int compareVersion(String version1, String version2) {
-        String[] v1paart = version1.split("\\.");
-        String[] v2paart = version1.split("\\.");
-        for (int i = 0; i < Math.max(version1.length(), version2.length()); i++) {
-            int v1 = i < v1paart.length ? Integer.parseInt(v1paart[i]) : 0;
-            int v2 = i < v2paart.length ? Integer.parseInt(v2paart[i]) : 0;
-            if (v1 < v2) return -1;
-            else return 1;
-        }
-        return 0;
-    }
 
     public int findMaxK(int[] nums) {
         HashSet<Integer> set = new HashSet<>();
@@ -6305,30 +6294,6 @@ public class Lcode {
 //    }
 
 
-    public boolean isMatch(String s, String p) {
-        Boolean[][] dp = new Boolean[s.length() + 1][p.length() + 1];
-        return recM(0, 0, s, p, dp);
-    }
-
-    boolean recM(int i, int j, String s, String p, Boolean[][] dp) {
-        if (i >= s.length() && j >= p.length()) return true;
-        if (j >= p.length()) return false;
-
-        if (dp[i][j] != null) return dp[i][j];
-
-        boolean match = (i < s.length()) &&
-                (s.charAt(i) == p.charAt(j) || p.charAt(j) == '.');
-
-        if (j + 1 < p.length() && p.charAt(j + 1) == '*') {
-            boolean pick = match && recM(i + 1, j, s, p, dp);
-            boolean npick = recM(i, j + 2, s, p, dp);
-            return dp[i][j] = pick || npick;
-        }
-
-        if (match) return dp[i][j] = recM(i + 1, j + 1, s, p, dp);
-        return dp[i][j] = false;
-    }
-
     public String sortVowels(String s) {
         Set<Character> set = new HashSet<>();
         set.add('a');
@@ -6667,7 +6632,7 @@ public class Lcode {
     public String[] spellchecker(String[] wordList, String[] queries) {
         Map<String, String> map = new HashMap<>();
         String[] result = new String[queries.length];
-        Set<String > ex = new HashSet<>();
+        Set<String> ex = new HashSet<>();
         Set<Integer> vowels = Set.of(0, 4, 8, 14, 20);
         int j = 0;
         for (String word : wordList) {
@@ -6762,23 +6727,22 @@ public class Lcode {
     }
 
     public long countSubarrays(int[] nums, int minK, int maxK) {
-        if (nums.length==1)return 0;
+        if (nums.length == 1) return 0;
         // Brute force , lets use Queue
-        long count =0 ;
+        long count = 0;
         for (int i = 0; i < nums.length; i++) {
             int continuous = 0;
-            int ci =0 , ca=0;
-            for (int j = i+1; j < nums.length; j++) {
-                ci=Math.min(ci,nums[i]);
-                ca=Math.max(ca,nums[i]);
-               if ( ci==minK && ca ==maxK){
-                   count++;
-                   continuous++;
-               }
-               else {
-                   count+=continuous;
-                   continuous=0;
-               }
+            int ci = 0, ca = 0;
+            for (int j = i + 1; j < nums.length; j++) {
+                ci = Math.min(ci, nums[i]);
+                ca = Math.max(ca, nums[i]);
+                if (ci == minK && ca == maxK) {
+                    count++;
+                    continuous++;
+                } else {
+                    count += continuous;
+                    continuous = 0;
+                }
             }
         }
 //        Queue<int[]> queue = new ArrayDeque<>();
@@ -6796,7 +6760,6 @@ public class Lcode {
     }
 
 
-
     public String pushDominoes(String dominoes) {
         // Key observation we just need to check for the adjacent dominos
         // Left direction we need to see R
@@ -6805,28 +6768,102 @@ public class Lcode {
         // after getting left and right dirs we need to see if the currennt
         //     standing domino has which larger force
         //     then it will be inclined to that dir
-        StringBuilder sb =  new StringBuilder();
-        for(int i=0; i< dominoes.length(); i++){
-            if (dominoes.charAt(i)=='.'){
-                int left = 0 , right =0;
-                if ( sb.isEmpty() && i > 0 && dominoes.charAt(i - 1) == 'R')left++;
-                else if (sb.charAt(i-1)=='R')left++;
-                if (i+1< dominoes.length() && dominoes.charAt(i+1)=='L')right++;
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < dominoes.length(); i++) {
+            if (dominoes.charAt(i) == '.') {
+                int left = 0, right = 0;
+                if (sb.isEmpty() && i > 0 && dominoes.charAt(i - 1) == 'R') left++;
+                else if (sb.charAt(i - 1) == 'R') left++;
+                if (i + 1 < dominoes.length() && dominoes.charAt(i + 1) == 'L') right++;
 
-                if (left==right)sb.append('.');
-                else if (left>right)sb.append('R');
+                if (left == right) sb.append('.');
+                else if (left > right) sb.append('R');
                 else sb.append('L');
-            }
-            else sb.append(dominoes.charAt(i));
+            } else sb.append(dominoes.charAt(i));
         }
         return sb.toString();
     }
 
 
+    public int compareVersion(String v1, String v2) {
+// ------------------ 1 ms ----------
+        String[] s1 = v1.split("\\.");
+        String[] s2 = v2.split("\\.");
+
+        if (s1.length == 1 && s2.length == 1) {
+            int x = Integer.parseInt(s1[0]);
+
+            int y = Integer.parseInt(s2[0]);
+            if (x == y) return 0;
+            return x > y ? 1 : -1;
+        }
+
+        int maxL = Math.max(s1.length, s2.length);
+        for (int i = 0; i < maxL; i++) {
+            int x = i >= s1.length ? 0 : Integer.parseInt(s1[i]);
+            int y = i >= s2.length ? 0 : Integer.parseInt(s2[i]);
+
+            if (x == y) continue;
+            else if (x < y) return -1;
+            else return 1;
+        }
+        return 0;
+    }
+
+    public boolean isMatch(String s, String p) {
+        if (p.equals("*")) return true;
+        Boolean[][] dp = new Boolean[s.length() + 1][p.length() + 1];
+        return recM(0, 0, s, p, dp);
+    }
+
+    boolean recM(int i, int j, String s, String p, Boolean[][] dp) {
+        if (i >= s.length() && j >= p.length()) return true;
+        if (j >= p.length()) return false;
+
+        if (dp[i][j] != null) return dp[i][j];
+
+        boolean match = (i < s.length()) &&
+                (s.charAt(i) == p.charAt(j) || p.charAt(j) == '?');
+
+        if (p.charAt(j) == '*') {
+            boolean zero = recM(i, j + 1, s, p, dp);      // '*' = empty
+            boolean many = (i < s.length()) && recM(i + 1, j, s, p, dp); // '*' eats one char
+            return dp[i][j] = zero || many;
+        }
+
+        if (match) return dp[i][j] = recM(i + 1, j + 1, s, p, dp);
+        return dp[i][j] = false;
+    }
+
+    //1. If the length of the string is 1, stop.
+    //2. If the length of the string is > 1, do the following:
+    //
+    //    -Split the string into two non-empty substrings at a random index, i.e., if the string is s, divide it to x and y where s = x + y.
+    //    -Randomly decide to swap the two substrings or to keep them in the same order. i.e., after this step, s may become s = x + y or s = y + x.
+//    char[] c_a;
+//    String c_s;
+//
+//    public boolean isScramble(String s1, String s2) {
+//        if (s1.equals(s2)) return true;
+////        Boolean[][] dp = new Boolean[s1.length() + 1][s2.length() + 1];
+//        c_a = s1.toCharArray();
+//        c_s = s2;
+//        return helpRec(s1, "");
+//    }
+//
+//    boolean helpRec(String one, String two) {
+//        if (one.length() == 1) return (one + two).equals(c_s);
+//        for (int i = 1; i < one.length() - 1; i++) {
+//            String s = one.substring(0, i);
+//            if (helpRec(s, two)) return true;
+//            if (helpRec(two, s)) return true;
+//        }
+//    }
 
     /// //////////////////////////////////
     public static void main(String[] args) {
         Lcode l = new Lcode();
+        System.out.println(l.compareVersion("1", "0"));
 
 //        String[] w = {"ae", "aa"};
 //        String[] q = {"UU"};
