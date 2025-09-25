@@ -6845,8 +6845,8 @@ public class Lcode {
 //
 //    public boolean isScramble(String s1, String s2) {
 //        if (s1.equals(s2)) return true;
-////        Boolean[][] dp = new Boolean[s1.length() + 1][s2.length() + 1];
-//        c_a = s1.toCharArray();
+
+    //        c_a = s1.toCharArray();
 //        c_s = s2;
 //        return helpRec(s1, "");
 //    }
@@ -6859,11 +6859,216 @@ public class Lcode {
 //            if (helpRec(two, s)) return true;
 //        }
 //    }
+    public int addDigits(int num) {
+        while (num > 9) {
+            int n = 0;
+            while (num > 9) {
+                n += num % 10;
+                num /= 10;
+            }
+            n += num;
+            num = n;
+        }
+        return num;
+    }
+
+
+    public int numSquares(int n) {
+        List<Integer> list = new ArrayList<>();
+        int i = 1;
+
+        while (i * i <= n) {
+            list.add(i * i);
+            i++;
+        }
+
+        return rec(n, list, 0);
+    }
+
+    int rec(int n, List<Integer> list, int count) {
+        if (n == 0) {
+            return count;
+        }
+
+        if (n < 0) return -1;
+        int c = Integer.MAX_VALUE;
+        for (int x : list) {
+            c = Math.min(rec(n - x, list, count + 1), c);
+        }
+        return c;
+    }
+
+    public String fractionToDecimal(int numerator, int denominator) {
+        double d = (double) numerator / denominator;
+        String s = String.valueOf(d).split("\\.")[1]; // fraction part
+
+        Map<String, String> map = new HashMap<>();
+        for (int i = 0; i < s.length(); i++) {
+            for (int j = i; j < s.length(); j++) {
+                String sub = s.substring(i, j + 1);
+                if (map.containsKey(sub)) {
+                    String[] s1 = map.get(sub).split("#");
+                    if (Integer.parseInt(s1[1]) == i) { // repeating
+                        map.put(sub, s1[0] + "#" + j + 1); // update length
+                    }
+                }
+                map.put(sub, i + "#" + (j + 1)); // value -> 0#4
+            }
+        }
+        // Map :
+        // 012 -> 0#3 -> 0#6 -> 0#9 , len = 9-0-1 = 8 == String length , pattern len = 3 -> 0 - 2
+
+
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < s.length() - 1; i++) {
+        }
+        return sb.toString();
+    }
+
+    public int[][] sortMatrix(int[][] grid) {
+        int n = grid.length;
+        int m = grid[0].length;
+
+        int i = 0;
+        while (i < n) {
+            // Mid to bottom
+            List<Integer> list = new ArrayList<>();
+            int j = 0;
+            int x = i;
+            while (x < n && j < m) {
+                list.add(grid[x][j]);
+                j++;
+                x++;
+            }
+            if (list.size() != 1) list.sort(Collections.reverseOrder());
+            j = 0;
+            x = i;
+            int y = 0;
+            while (x < n && j < m) {
+                grid[x][j] = list.get(y);
+                x++;
+                j++;
+                y++;
+            }
+            i++;
+        }
+
+        i = 1;
+        while (i < m) {
+            // Top
+
+            List<Integer> list = new ArrayList<>();
+            int j = 0;
+            int x = i;
+            while (x < m && j < n) {
+                list.add(grid[x][j]);
+                j++;
+                x++;
+            }
+            if (list.size() != 1) Collections.sort(list);
+            j = 0;
+            x = i;
+            int y = 0;
+            while (x < m && j < n) {
+                grid[x][j] = list.get(y);
+                j++;
+                x++;
+                y++;
+            }
+            i++;
+
+        }
+        for (int[] x : grid) System.out.println(Arrays.toString(x));
+        return grid;
+    }
+
+
+    public int maxProfit(int[] prices) {
+        int[] Memo_P = new int[prices.length];
+        return rec(prices, Integer.MAX_VALUE, 0, Memo_P);
+    }
+
+    int rec(int[] prices, int take, int i, int[] dp) {
+        if (i == prices.length) {
+            if (take == Integer.MAX_VALUE) return 0; // valid answer
+            else return -1; // invalid answer
+        }
+
+        if (dp[i] != 0) return dp[i];
+
+        int c = 0;
+        if (take == Integer.MAX_VALUE) { // we need to buy stocks
+            c = Math.max(rec(prices, prices[i], i + 1, dp), c);// pick the current
+            c = Math.max(rec(prices, take, i + 1, dp), c); // not pick wiat for futher
+        } else { // need to sell stocks
+            if (prices[i] > take)
+                c = prices[i] - take + Math.max(c, rec(prices, Integer.MAX_VALUE, i + 1, dp));// sell right now
+            c = Math.max(c, rec(prices, take, i + 1, dp));// sell on next
+        }
+        dp[i] = c;
+        return c;
+    }
+
+
+    List<List<String>> result;
+    String s;
+
+    public List<List<String>> partition(String a) {
+        result = new ArrayList<>();
+        s = a;
+        rec(new ArrayList<>(), new StringBuilder(), 0);
+        return result;
+    }
+    // if we got a valid stirng at current level then only we will proceed
+    // else return
+    // ->  2 choices ,
+    //   - if valid then take the next to the current string
+    //   - or add the curent string to the list and start a new one
+
+    void rec(List<String> list, StringBuilder x, int i) {
+        if (i == s.length()) {
+            // if current x is also a valid palindrome, add it before saving result
+            if (!x.isEmpty() && valid(x.toString())) {
+                list.add(x.toString());
+                result.add(new ArrayList<>(list));
+                list.remove(list.size() - 1); // backtrack
+            } else if (x.isEmpty()) {
+                result.add(new ArrayList<>(list));
+            }
+            return;
+        }
+
+        // choice 1 → extend current substring
+        x.append(s.charAt(i));
+        rec(list, x, i + 1);
+        x.deleteCharAt(x.length() - 1); // backtrack
+
+        // choice 2 → cut here if current x is a valid palindrome
+        if (!x.isEmpty() && valid(x.toString())) {
+            list.add(x.toString());
+            StringBuilder newX = new StringBuilder(); // start fresh substring
+            newX.append(s.charAt(i));
+            rec(list, newX, i + 1);
+            list.remove(list.size() - 1); // backtrack
+        }
+    }
+
+    boolean valid(String s) {
+        int i = 0, j = s.length() - 1;
+        while (i < j) {
+            if (s.charAt(i) != s.charAt(j)) return false;
+            i++;
+            j--;
+        }
+        return true;
+    }
+
 
     /// //////////////////////////////////
     public static void main(String[] args) {
         Lcode l = new Lcode();
-        System.out.println(l.compareVersion("1", "0"));
+        System.out.println(l.maxProfit(new int[]{1, 2, 3, 4, 5}));
+//        System.out.println(l.compareVersion("1", "0"));
 
 //        String[] w = {"ae", "aa"};
 //        String[] q = {"UU"};
