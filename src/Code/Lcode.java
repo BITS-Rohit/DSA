@@ -7063,11 +7063,43 @@ public class Lcode {
         return true;
     }
 
+    public int triangleNumber(int[] nums) {
+        int count =0;
+        for(int i =0; i<nums.length; i++){
+            for (int j = i+1; j < nums.length; j++) {
+                for (int k = j+1; k < nums.length; k++) {
+                    if(nums[i] ==0 || nums[j]==0 || nums[k]==0)continue;
+                    if (nums[i]+nums[j]>nums[k])count++;
+                }
+            }
+        }
+        return count;
+    }
+
+
+    public int[] getNoZeroIntegers(int n) {
+        return recIZ(n-1 , 1);
+    }
+
+    int[] recIZ(int n , int i ){
+        if (!hasZero(n))return new int[]{n , i };
+        else return recIZ(n-1,i+1);
+    }
+
+    boolean hasZero (int n){
+        while(n>0){
+            if (n%10==0)return true;
+            n/=10;
+        }
+        return false;
+    }
+
+
 
     /// //////////////////////////////////
     public static void main(String[] args) {
         Lcode l = new Lcode();
-        System.out.println(l.maxProfit(new int[]{1, 2, 3, 4, 5}));
+//        System.out.println(l.maxProfit(new int[]{1, 2, 3, 4, 5}));
 //        System.out.println(l.compareVersion("1", "0"));
 
 //        String[] w = {"ae", "aa"};
