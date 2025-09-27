@@ -7064,12 +7064,12 @@ public class Lcode {
     }
 
     public int triangleNumber(int[] nums) {
-        int count =0;
-        for(int i =0; i<nums.length; i++){
-            for (int j = i+1; j < nums.length; j++) {
-                for (int k = j+1; k < nums.length; k++) {
-                    if(nums[i] ==0 || nums[j]==0 || nums[k]==0)continue;
-                    if (nums[i]+nums[j]>nums[k])count++;
+        int count = 0;
+        for (int i = 0; i < nums.length; i++) {
+            for (int j = i + 1; j < nums.length; j++) {
+                for (int k = j + 1; k < nums.length; k++) {
+                    if (nums[i] == 0 || nums[j] == 0 || nums[k] == 0) continue;
+                    if (nums[i] + nums[j] > nums[k]) count++;
                 }
             }
         }
@@ -7078,27 +7078,269 @@ public class Lcode {
 
 
     public int[] getNoZeroIntegers(int n) {
-        return recIZ(n-1 , 1);
+        return recIZ(n - 1, 1);
     }
 
-    int[] recIZ(int n , int i ){
-        if (!hasZero(n))return new int[]{n , i };
-        else return recIZ(n-1,i+1);
+    int[] recIZ(int n, int i) {
+        if (!hasZero(n)) return new int[]{n, i};
+        else return recIZ(n - 1, i + 1);
     }
 
-    boolean hasZero (int n){
-        while(n>0){
-            if (n%10==0)return true;
-            n/=10;
+    boolean hasZero(int n) {
+        while (n > 0) {
+            if (n % 10 == 0) return true;
+            n /= 10;
         }
         return false;
     }
 
+    public int totalFruits(int[] fruits) {
+        return rec(fruits, 0, Integer.MAX_VALUE, Integer.MAX_VALUE, 0);
+    }
+
+    int rec(int[] f, int i, int x, int y, int count) {
+        if (i == f.length) return count;
+
+        if (x != Integer.MAX_VALUE && y != Integer.MAX_VALUE
+                && f[i] != x && f[i] != y) {
+            return Math.max(count, rec(f, i, f[i], Integer.MAX_VALUE, 0));
+        }
+
+        boolean ispicked = x != Integer.MAX_VALUE || y != Integer.MAX_VALUE;
+        int c = Integer.MIN_VALUE;
+
+        if (ispicked) {
+            if (x != Integer.MAX_VALUE) {
+                if (x == f[i]) {
+                    c = Math.max(c, rec(f, i + 1, x, y, count + 1));
+                } else if (y != f[i]) {
+                    if (y == Integer.MAX_VALUE) {
+                        y = f[i];
+                        c = Math.max(c, rec(f, i + 1, x, y, count + 1));
+                    }
+                } else c = Math.max(c, rec(f, i + 1, x, y, count + 1));
+            } else c = Math.max(c, rec(f, i + 1, f[i], y, count + 1));
+
+        } else {
+            int a = Math.max(
+                    rec(f, i + 1, f[i], y, count + 1), // pick this fruit
+                    rec(f, i + 1, x, y, count)         // skip
+            );
+            c = Math.max(c, a);
+        }
+
+        return c;
+    }
+
+    public int totalFruit(int[] fruits) {
+        int max = 0;
+        int left = 0;
+        Map<Integer, Integer> map = new HashMap<>();
+        for (int right = 0; right < fruits.length; right++) {
+            map.put(fruits[right], map.getOrDefault(fruits[right], 0) + 1);
+
+            if (map.size() > 2) {
+                while (map.size() > 2) {
+                    map.put(fruits[left], map.getOrDefault(fruits[left], 0) - 1);
+                    if (map.get(fruits[left]) <= 0) map.remove(fruits[left]);
+                    left++;
+                }
+            }
+            max = Math.max(max, right - left + 1);
+        }
+        return max;
+    }
+
+    public int countHillValley(int[] nums) {
+//        return customHill(nums);
+        return CustomHill(nums);
+    }
+
+    int CustomHill(int[] nums) {
+        List<Integer> filtered = new ArrayList<>();
+        filtered.add(nums[0]);
+        for (int i = 1; i < nums.length; i++) {
+            if (nums[i] != nums[i - 1]) filtered.add(nums[i]);
+        }
+
+        int count = 0;
+        for (int i = 1; i < filtered.size() - 1; i++) {
+            int left = filtered.get(i - 1);
+            int curr = filtered.get(i);
+            int right = filtered.get(i + 1);
+
+            if ((curr > left && curr > right) || (curr < left && curr < right)) {
+                count++;
+            }
+        }
+        return count;
+    }
+
+    // ------ 35 ms -----
+    int customHill(int[] nums) {
+        int count = 0;
+        for (int i = 0; i < nums.length; i++) {
+            if (i > 0 && nums[i - 1] == nums[i]) continue;
+            int[] arr = get(nums, i);
+            if (arr[0] == -1 || arr[1] == -1) continue;
+            else if (arr[0] < nums[i] && arr[1] < nums[i] || (arr[0] > nums[i] && arr[1] > nums[i])) count++;
+
+            System.out.println("i- " + i + " val-" + nums[i] + " count-" + count);
+        }
+        return count; // hills and valleys
+    }
+
+    int[] get(int[] a, int i) {
+        int[] result = new int[2];
+        if (i - 1 < 0) result[0] = -1; // edge cases
+        if (i + 1 >= a.length) {
+            if (result[0] == -1) result[1] = -1;
+            else result[0] = -1;
+        }
+
+        // second edge case is with adjacents are same
+
+        if (result[0] != -1) result[0] = rec(a, i, false); // false means go search left
+        if (result[1] != -1) result[1] = rec(a, i, true);  // true means go search right
+
+        System.out.println("Res at  : " + i + " " + Arrays.toString(result));
+
+        return result;
+    }
+
+    int rec(int[] a, int i, boolean dir) {
+        // if adjacnet are same find next by recursion
+        if (i < 0 || i == a.length) return -1; // base case
+
+        if (dir) { // right search
+            if (i - 1 >= 0) {
+                if (a[i - 1] != a[i]) return a[i - 1];
+                else return rec(a, i - 1, dir); // recursion to search left
+            }
+
+        } else { // left search
+            if (i + 1 < a.length) {
+                if (a[i + 1] != a[i]) return a[i + 1];
+                else return rec(a, i + 1, dir);
+            }
+        }
+        return -1; // IndexOutOfBound
+    }
+
+
+//    public int maximumGain(String s, int x, int y) {
+//        String max , min;
+//        int maxn , minn;
+//        if ( x > y){
+//            max = "ab";
+//            min = "ba";
+//            maxn = x ;
+//            minn = y ;
+//        }
+//        else {
+//            max = "ba";
+//            min = "ab";
+//            maxn = y ;
+//            minn = x ;
+//        }
+//        StringBuilder sba = new StringBuilder();
+//        for(char c : s.toCharArray())if (c=='a' || c=='b')sba.append(c); // pre-process for removing other chars
+//        if (sba.isEmpty())return 0;
+//        s = sba.toString();
+//        int c =0 ;
+//        while(!s.isEmpty()){
+//            StringBuilder sb = new StringBuilder();
+//            int count =0;
+//            for(int i =0; i< s.length(); i++){
+//                if (s.charAt(i)==max.charAt(0) && i+1 < s.length() && s.charAt(i+1) == max.charAt(1)){
+//                    count++;
+//                    i++;
+//                }
+//                else sb.append(s.charAt(i));
+//            }
+//            if (count==0)break;
+//            else c+=maxn*count;
+//            s= sb.toString();
+//        }
+//        // now check for lower val one
+//
+//        while(!s.isEmpty()){
+//            StringBuilder sb = new StringBuilder();
+//            int count =0;
+//            for(int i =0; i< s.length(); i++){
+//                if (s.charAt(i)==min.charAt(0) && i+1 < s.length() && s.charAt(i+1) == min.charAt(1)){
+//                    count++;
+//                    i++;
+//                }
+//                else sb.append(s.charAt(i));
+//            }
+//            if (count==0)break;
+//            else c+=minn*count;
+//            s= sb.toString();
+//        }
+//        return c;
+//    }
+//
+
+    public int maximumGain(String s, int x, int y) {
+        int maxVal = Math.max(x, y);
+        int minVal = Math.min(x, y);
+        String maxS = x > y ? "ab" : "ba";
+        String minS = x > y ? "ba" : "ab";
+
+        // First pass: remove max-value substrings
+        Stack<Character> stack = new Stack<>();
+        int score = 0;
+        for (char ch : s.toCharArray()) {
+            if (!stack.isEmpty() && stack.peek() == maxS.charAt(0) && ch == maxS.charAt(1)) {
+                stack.pop();
+                score += maxVal;
+            } else {
+                stack.push(ch);
+            }
+        }
+
+        // Build leftover string
+        StringBuilder leftover = new StringBuilder();
+        for (char ch : stack) leftover.append(ch);
+
+        // Second pass: remove min-value substrings
+        stack.clear();
+        for (char ch : leftover.toString().toCharArray()) {
+            if (!stack.isEmpty() && stack.peek() == minS.charAt(0) && ch == minS.charAt(1)) {
+                stack.pop();
+                score += minVal;
+            } else {
+                stack.push(ch);
+            }
+        }
+
+        return score;
+    }
+
+    public  boolean isValidB(String word) {
+        if (word.length() < 3) return false;
+
+        boolean vowel = false;
+        for (char c : word.toCharArray()) {
+            if (c < 'a' || c > 'z') return false; // Only lowercase letters allowed
+            if (isVowel(c)) vowel = true;
+        }
+        return vowel;
+    }
+
+    private static boolean isVowel(char c) {
+        return c == 'a' || c == 'e' || c == 'i' || c == 'o' || c == 'u';
+    }
 
 
     /// //////////////////////////////////
     public static void main(String[] args) {
         Lcode l = new Lcode();
+        System.out.println(l.isValidB("UuE6"));
+//        System.out.println(l.maximumGain("cdbcbbaaabab", 4, 5));
+//        System.out.println(l.countHillValley(new int[]{2, 4, 1, 1, 6, 5}));
+//        System.out.println(l.totalFruit(new int[]{0, 0, 1, 1}));
 //        System.out.println(l.maxProfit(new int[]{1, 2, 3, 4, 5}));
 //        System.out.println(l.compareVersion("1", "0"));
 
