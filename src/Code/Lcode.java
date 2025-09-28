@@ -7333,7 +7333,58 @@ public class Lcode {
         return c == 'a' || c == 'e' || c == 'i' || c == 'o' || c == 'u';
     }
 
+    public double largestTriangleArea(int[][] points) {
+        double maxArea = 0;
+        int n = points.length;
 
+        for (int i = 0; i < n; i++) {
+            for (int j = i + 1; j < n; j++) {
+                for (int k = j + 1; k < n; k++) {
+                    double area = triangleArea(points[i], points[j], points[k]);
+                    maxArea = Math.max(maxArea, area);
+                }
+            }
+        }
+
+        return maxArea;
+    }
+
+    private double triangleArea(int[] p1, int[] p2, int[] p3) {
+        int x1 = p1[0], y1 = p1[1];
+        int x2 = p2[0], y2 = p2[1];
+        int x3 = p3[0], y3 = p3[1];
+        return Math.abs(x1 * (y2 - y3) + x2 * (y3 - y1) + x3 * (y1 - y2)) / 2.0;
+    }
+
+
+    public static int largestPerimeter(int[] a) {
+        Arrays.sort(a); // O(n log n)
+        int n = a.length;
+
+        // Check from the largest side backwards
+        for (int i = n - 1; i >= 2; i--) {
+            if (a[i - 2] + a[i - 1] > a[i]) {
+                return a[i - 2] + a[i - 1] + a[i];
+            }
+        }
+        return 0; // No triangle found
+    }
+
+    public String removeDuplicateLetters(String s) {
+        int[] arr = new int[26];
+        List<Character> ch = new ArrayList<>();
+        for(char c : s.toCharArray()){
+            int idx = c-'a';
+            if (arr[idx]==0){
+                arr[idx]++;
+                ch.add(c);
+            }
+        }
+        Collections.sort(ch);
+        StringBuilder sb = new StringBuilder();
+        for(char c : ch)sb.append(c);
+        return sb.toString();
+    }
     /// //////////////////////////////////
     public static void main(String[] args) {
         Lcode l = new Lcode();
