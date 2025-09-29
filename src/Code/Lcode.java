@@ -6898,32 +6898,6 @@ public class Lcode {
         return c;
     }
 
-    public String fractionToDecimal(int numerator, int denominator) {
-        double d = (double) numerator / denominator;
-        String s = String.valueOf(d).split("\\.")[1]; // fraction part
-
-        Map<String, String> map = new HashMap<>();
-        for (int i = 0; i < s.length(); i++) {
-            for (int j = i; j < s.length(); j++) {
-                String sub = s.substring(i, j + 1);
-                if (map.containsKey(sub)) {
-                    String[] s1 = map.get(sub).split("#");
-                    if (Integer.parseInt(s1[1]) == i) { // repeating
-                        map.put(sub, s1[0] + "#" + j + 1); // update length
-                    }
-                }
-                map.put(sub, i + "#" + (j + 1)); // value -> 0#4
-            }
-        }
-        // Map :
-        // 012 -> 0#3 -> 0#6 -> 0#9 , len = 9-0-1 = 8 == String length , pattern len = 3 -> 0 - 2
-
-
-        StringBuilder sb = new StringBuilder();
-        for (int i = 0; i < s.length() - 1; i++) {
-        }
-        return sb.toString();
-    }
 
     public int[][] sortMatrix(int[][] grid) {
         int n = grid.length;
@@ -7215,13 +7189,13 @@ public class Lcode {
         if (dir) { // right search
             if (i - 1 >= 0) {
                 if (a[i - 1] != a[i]) return a[i - 1];
-                else return rec(a, i - 1, dir); // recursion to search left
+                else return rec(a, i - 1, true); // recursion to search left
             }
 
         } else { // left search
             if (i + 1 < a.length) {
                 if (a[i + 1] != a[i]) return a[i + 1];
-                else return rec(a, i + 1, dir);
+                else return rec(a, i + 1, false);
             }
         }
         return -1; // IndexOutOfBound
@@ -7318,7 +7292,7 @@ public class Lcode {
         return score;
     }
 
-    public  boolean isValidB(String word) {
+    public boolean isValidB(String word) {
         if (word.length() < 3) return false;
 
         boolean vowel = false;
@@ -7371,24 +7345,93 @@ public class Lcode {
     }
 
     public String removeDuplicateLetters(String s) {
-        int[] arr = new int[26];
-        List<Character> ch = new ArrayList<>();
-        for(char c : s.toCharArray()){
-            int idx = c-'a';
-            if (arr[idx]==0){
-                arr[idx]++;
-                ch.add(c);
+        int[] freq = new int[26];     // frequency of each char
+        boolean[] visited = new boolean[26]; // in-stack check
+
+        for (char c : s.toCharArray()) freq[c - 'a']++;
+
+        Stack<Character> stack = new Stack<>();
+
+        for (char c : s.toCharArray()) {
+            freq[c - 'a']--;
+
+            if (visited[c - 'a']) continue;
+            while (!stack.isEmpty() &&
+                    stack.peek() > c &&
+                    freq[stack.peek() - 'a'] > 0) {
+                visited[stack.pop() - 'a'] = false;
             }
+
+            stack.push(c);
+            visited[c - 'a'] = true;
         }
-        Collections.sort(ch);
+
+        // Build result
         StringBuilder sb = new StringBuilder();
-        for(char c : ch)sb.append(c);
+        for (char c : stack) sb.append(c);
         return sb.toString();
     }
+
+    public boolean isValidSerialization(String preorder) {
+        int slots = 1;
+        for (String node : preorder.split(",")) {
+            slots--;
+            if (slots < 0) return false;
+            if (!node.equals("#")) slots += 2;
+        }
+        return slots == 0;
+    }
+
+    public String removeKdigits(String s, int k) {
+        Stack<Character> stack = new Stack<>();
+        for(char c : s.toCharArray()){
+            if(!stack.isEmpty() && stack.peek()>c && k>0){
+                stack.pop();
+                k--;
+            }
+            stack.push(c);
+        }
+        StringBuilder sb = new StringBuilder();
+        while(!stack.isEmpty())sb.append(stack.pop());
+        return sb.reverse().toString();
+    }
+
+    static int[] dp ={6,6};
+    public int nthUglyNumber(int n) {
+
+        if (n<7)return n;
+        int count =6; // upto 6 its n and already known
+        for(int i = dp[0]<n ? dp[1]:7 ; i<Integer.MAX_VALUE; i++){
+            boolean ans = isUgly(i);
+            if(ans)count++;
+            if(count==n){
+                dp[0]=n;
+                dp[1]=i;
+                return i;
+            }
+        }
+        return -1;
+    }
+
+    boolean isUgly(int i ){
+        if(i==1)return true;
+        int j =i;
+        while(i%2==0)i/=2;
+        while (i%3==0)i/=3;
+        while (i%5==0)i/=5;
+
+        if(i==j)return false;
+        else return isUgly(i);
+    }
+
     /// //////////////////////////////////
     public static void main(String[] args) {
         Lcode l = new Lcode();
-        System.out.println(l.isValidB("UuE6"));
+//        System.out.println(l.nthUglyNumber(7));
+        System.out.println(309*309);
+//        System.out.println(l.isValidSerialization("#,#,3,5,#"));
+//        System.out.println(l.removeDuplicateLetters("bcabc"));
+//        System.out.println(l.isValidB("UuE6"));
 //        System.out.println(l.maximumGain("cdbcbbaaabab", 4, 5));
 //        System.out.println(l.countHillValley(new int[]{2, 4, 1, 1, 6, 5}));
 //        System.out.println(l.totalFruit(new int[]{0, 0, 1, 1}));
@@ -8088,30 +8131,3 @@ class MagicDictionary {
 }
 
 
-//public boolean canBeValid(String s, String locked) {
-//        stack.push(0);
-//        for(int i =1;i<s.length();i++){
-//            if(!stack.isEmpty() && s.charAt(i)==')'){
-//                if(s.charAt(stack.peek())!='(' && locked.charAt(stack.peek())=='0'){
-//                    stack.pop();
-//                }
-//                else stack.pop();
-//            }
-//            else if(!stack.isEmpty() && s.charAt(i)=='(' &&  s.charAt(stack.peek())=='(' && locked.charAt(i)=='0') {
-//                stack.pop();
-//            }
-//            else stack.push(i);
-//        }
-//        if(stack.size()%2==0){
-//            while(!stack.isEmpty()){
-//                int n = stack.pop();
-//                if(locked.charAt(n)=='1' && locked.charAt(stack.peek())=='1')break;
-//                if(s.charAt(n)==')' && s.charAt(stack.peek())!='(' && locked.charAt(stack.peek())=='0')stack.pop();
-//                else if (s.charAt(n)=='(' ){
-//                    if(s.charAt(stack.peek())==')' && locked.charAt(n)=='0' && locked.charAt(stack.peek())=='0')stack.pop();
-//                    else if(s.charAt(stack.peek())=='(' && locked.charAt(n)=='0')stack.pop();
-//                }
-//            }
-//        }
-//        else return false;
-//
