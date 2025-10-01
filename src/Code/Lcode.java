@@ -7384,51 +7384,150 @@ public class Lcode {
 
     public String removeKdigits(String s, int k) {
         Stack<Character> stack = new Stack<>();
-        for(char c : s.toCharArray()){
-            if(!stack.isEmpty() && stack.peek()>c && k>0){
+        for (char c : s.toCharArray()) {
+            if (!stack.isEmpty() && stack.peek() > c && k > 0) {
                 stack.pop();
                 k--;
             }
             stack.push(c);
         }
         StringBuilder sb = new StringBuilder();
-        while(!stack.isEmpty())sb.append(stack.pop());
+        while (!stack.isEmpty()) sb.append(stack.pop());
         return sb.reverse().toString();
     }
 
-    static int[] dp ={6,6};
+    static int[] dp = {6, 6};
+
     public int nthUglyNumber(int n) {
 
-        if (n<7)return n;
-        int count =6; // upto 6 its n and already known
-        for(int i = dp[0]<n ? dp[1]:7 ; i<Integer.MAX_VALUE; i++){
+        if (n < 7) return n;
+        int count = 6; // upto 6 its n and already known
+        for (int i = dp[0] < n ? dp[1] : 7; i < Integer.MAX_VALUE; i++) {
             boolean ans = isUgly(i);
-            if(ans)count++;
-            if(count==n){
-                dp[0]=n;
-                dp[1]=i;
+            if (ans) count++;
+            if (count == n) {
+                dp[0] = n;
+                dp[1] = i;
                 return i;
             }
         }
         return -1;
     }
 
-    boolean isUgly(int i ){
-        if(i==1)return true;
-        int j =i;
-        while(i%2==0)i/=2;
-        while (i%3==0)i/=3;
-        while (i%5==0)i/=5;
+    boolean isUgly(int i) {
+        if (i == 1) return true;
+        int j = i;
+        while (i % 2 == 0) i /= 2;
+        while (i % 3 == 0) i /= 3;
+        while (i % 5 == 0) i /= 5;
 
-        if(i==j)return false;
+        if (i == j) return false;
         else return isUgly(i);
+    }
+
+    public int calculateMinimumHP(int[][] dungeon) {
+        int m = dungeon.length;
+        int n = dungeon[0].length;
+        int[][] memo = new int[m][n];
+
+        return dfs(dungeon, 0, 0, m, n, memo);
+    }
+
+    int dfs(int[][] d, int i, int j, int m, int n, int[][] memo) {
+        if (i >= m || j >= n) return Integer.MAX_VALUE;
+
+        if (i == m - 1 && j == n - 1) return Math.max(1, 1 - d[i][j]);
+        if (memo[i][j] != 0) return memo[i][j];
+
+        int right = dfs(d, i, j + 1, m, n, memo);
+        int down = dfs(d, i + 1, j, m, n, memo);
+        int need = Math.min(right, down) - d[i][j];
+
+        memo[i][j] = Math.max(1, need);
+        return memo[i][j];
+    }
+
+
+    public int maxProfit(int k, int[] prices) {
+        Integer[][][] dp = new Integer[prices.length][k + 1][2];
+        return rec(prices, 0, k, 0, dp);
+    }
+
+    int rec(int[] p, int i, int k, int hold, Integer[][][] dp) {
+        if (i == p.length || k == 0) return 0;
+
+        if (dp[i][k][hold] != null) return dp[i][k][hold];
+
+        int doNothing = rec(p, i + 1, k, hold, dp);
+        int doSomething;
+
+        // buy
+        if (hold == 0) doSomething = -p[i] + rec(p, i + 1, k, 1, dp);
+        // sell
+        else doSomething = p[i] + rec(p, i + 1, k - 1, 0, dp);
+
+        return dp[i][k][hold] = Math.max(doNothing, doSomething);
+    }
+
+
+    public int maxCoins(int[] nums) {
+        int[] dp= new int[nums.length];
+        // Constraint dependent on i so single DP
+        return rec(nums, 0 , dp, new HashSet<>());
+    }
+
+    int rec(int[] n , int i , int[] dp, Set<Integer>set){
+        if (i==n.length){ // reached to end
+            return 0;
+        }
+        // Compute via calls answering
+        if(dp[i]!=0)return dp[i];
+
+        int npick = rec(n, i+1, dp,set);
+        set.add(i);
+        int pick  = getCoins(n,i, set)+rec(n,i+1,dp,set);
+        set.remove(i);
+        return dp[i]= Math.max(npick , pick);
+    }
+
+    int getCoins(int[] n, int i, Set<Integer> set) {
+        if (n[i] == 0) return 0;
+
+        int left = -1, right = -1;
+        int x = i - 1, y = i + 1;
+
+        while (left == -1 || right == -1) {
+            // Find left neighbor
+            if (left == -1) {
+                if (x >= 0 && !set.contains(x)) {
+                    left = n[x];
+                } else if (x < 0) {
+                    left = 1;
+                } else {
+                    x--;
+                }
+            }
+
+            // Find right neighbor
+            if (right == -1) {
+                if (y < n.length && !set.contains(y)) {
+                    right = n[y];
+                } else if (y >= n.length) {
+                    right = 1;
+                } else {
+                    y++;
+                }
+            }
+        }
+
+        return left * n[i] * right;
     }
 
     /// //////////////////////////////////
     public static void main(String[] args) {
         Lcode l = new Lcode();
 //        System.out.println(l.nthUglyNumber(7));
-        System.out.println(309*309);
+//        System.out.println(-5>-10);
 //        System.out.println(l.isValidSerialization("#,#,3,5,#"));
 //        System.out.println(l.removeDuplicateLetters("bcabc"));
 //        System.out.println(l.isValidB("UuE6"));
