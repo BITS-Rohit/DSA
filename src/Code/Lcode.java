@@ -7463,7 +7463,7 @@ public class Lcode {
 
         // buy
         if (hold == 0) doSomething = -p[i] + rec(p, i + 1, k, 1, dp);
-        // sell
+            // sell
         else doSomething = p[i] + rec(p, i + 1, k - 1, 0, dp);
 
         return dp[i][k][hold] = Math.max(doNothing, doSomething);
@@ -7471,23 +7471,23 @@ public class Lcode {
 
 
     public int maxCoins(int[] nums) {
-        int[] dp= new int[nums.length];
+        int[] dp = new int[nums.length];
         // Constraint dependent on i so single DP
-        return rec(nums, 0 , dp, new HashSet<>());
+        return rec(nums, 0, dp, new HashSet<>());
     }
 
-    int rec(int[] n , int i , int[] dp, Set<Integer>set){
-        if (i==n.length){ // reached to end
+    int rec(int[] n, int i, int[] dp, Set<Integer> set) {
+        if (i == n.length) { // reached to end
             return 0;
         }
         // Compute via calls answering
-        if(dp[i]!=0)return dp[i];
+        if (dp[i] != 0) return dp[i];
 
-        int npick = rec(n, i+1, dp,set);
+        int npick = rec(n, i + 1, dp, set);
         set.add(i);
-        int pick  = getCoins(n,i, set)+rec(n,i+1,dp,set);
+        int pick = getCoins(n, i, set) + rec(n, i + 1, dp, set);
         set.remove(i);
-        return dp[i]= Math.max(npick , pick);
+        return dp[i] = Math.max(npick, pick);
     }
 
     int getCoins(int[] n, int i, Set<Integer> set) {
@@ -7522,6 +7522,7 @@ public class Lcode {
 
         return left * n[i] * right;
     }
+
     public int nthSuperUglyNumber(int n, int[] primes) {
         int k = primes.length;
         long[] dp = new long[n];
@@ -7542,6 +7543,42 @@ public class Lcode {
 
         return (int) dp[n - 1];
     }
+
+//    public int maxEnvelopes(int[][] arr) {
+//        Arrays.sort();
+//    }
+
+    public int wiggleMaxLength(int[] nums) {
+        if (nums.length == 0) return 0;
+        if (nums.length == 1) return 1;
+
+        int[] n = new int[nums.length - 1];
+        int size = 0;
+        for (int i = 1; i < nums.length; i++) {
+            int diff = nums[i] - nums[i - 1];
+            if (diff > 0) n[size++] = 1;
+            else if (diff < 0) n[size++] = -1;
+            // ignore diff == 0
+        }
+        int[][] dp = new int[n.length][n.length];
+        if (size == 0) return 1; // all numbers same
+
+        return recp(n, 0, -1, size, dp) + 1;
+    }
+
+    int recp(int[] n, int i, int pre, int size, int[][] dp) {
+        if (i == size) return 0;
+
+        if(dp[i][pre]!=0)return dp[i][pre];
+
+        int npick = recp(n, i + 1, pre, size, dp); // skip
+        int pick = 0; // take
+        if (pre == -1 || n[pre] == -n[i]) pick = 1 + recp(n, i + 1, i, size, dp);
+
+        return dp[i][pre]=Math.max(pick, npick);
+    }
+
+
 
 
     /// //////////////////////////////////
