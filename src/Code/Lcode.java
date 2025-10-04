@@ -1237,22 +1237,6 @@ public class Lcode {
         }
     }
 
-    /// //////////////////////////////////
-    public int combinationSum4(int[] nums, int target) {
-        if (nums.length == 0) return 0;
-        int ans = 0;
-        return getcomb4(nums, target);
-    }
-
-    private int getcomb4(int[] nums, int target) {
-        if (target == 0) return 1;
-        if (target < 0) return 0;
-        int ans = 0;
-        for (int num : nums) {
-            ans += getcomb4(nums, target - num);
-        }
-        return ans;
-    }
 
     /// //////////////////////////////////
     public int isPrefixOfWord(String sentence, String searchWord) {
@@ -7569,23 +7553,143 @@ public class Lcode {
     int recp(int[] n, int i, int pre, int size, int[][] dp) {
         if (i == size) return 0;
 
-        if(dp[i][pre]!=0)return dp[i][pre];
+        if (dp[i][pre] != 0) return dp[i][pre];
 
         int npick = recp(n, i + 1, pre, size, dp); // skip
         int pick = 0; // take
-        if (pre == -1 || n[pre] == -n[i]) pick = 1 + recp(n, i + 1, i, size, dp);
+        if (n[pre] == -n[i]) pick = 1 + recp(n, i + 1, i, size, dp);
 
-        return dp[i][pre]=Math.max(pick, npick);
+        return dp[i][pre] = Math.max(pick, npick);
+    }
+
+    public boolean canCross(int[] stones) {
+        Map<Integer, Integer> idxMap = new HashMap<>();
+        for (int i = 0; i < stones.length; i++) idxMap.put(stones[i], i);
+
+        Map<String, Boolean> dp = new HashMap<>();
+        return cross(stones, 0, 0, idxMap, dp);
+    }
+
+    boolean cross(int[] st, int i, int jump, Map<Integer, Integer> idx, Map<String, Boolean> dp) {
+        if (i == st.length - 1) return true;
+
+        String key = i + "," + jump;
+        if (dp.containsKey(key)) return dp.get(key);
+
+        int pos = st[i];
+        boolean ans = false;
+
+        // jump - 1
+        if (jump - 1 > 0 && idx.containsKey(pos + jump - 1)) {
+            int nextIdx = idx.get(pos + jump - 1);
+            ans |= cross(st, nextIdx, jump - 1, idx, dp);
+        }
+
+        // jump
+        if (!ans && jump > 0 && idx.containsKey(pos + jump)) {
+            int nextIdx = idx.get(pos + jump);
+            ans = cross(st, nextIdx, jump, idx, dp);
+        }
+
+        // jump + 1
+        if (!ans && idx.containsKey(pos + jump + 1)) {
+            int nextIdx = idx.get(pos + jump + 1);
+            ans = cross(st, nextIdx, jump + 1, idx, dp);
+        }
+
+        dp.put(key, ans);
+        return ans;
+    }
+
+    List<Integer> mlist;
+
+    public List<Integer> largestDivisibleSubset(int[] nums) {
+        Arrays.sort(nums);
+        // dp , as we need to explore all paths via skip or take
+        // Longest subset pair , it comes frmo child substructure , hence Optimal Substructure
+        mlist = new ArrayList<>();
+        List<Integer> l = new ArrayList<>();
+        l.add(nums[0]);
+        recl(nums, 1, new ArrayList<>());
+        return mlist;
+    }
+
+    void recl(int[] nums, int i, List<Integer> l) {
+        if (i == nums.length) {
+            if (l.size() > mlist.size()) mlist = l;
+            return;
+        }
+
+        recl(nums, i + 1, l);
+        if (l.get(0) % nums[i] == 0 || nums[i] % l.get(0) == 0) {
+            l.add(nums[i]);
+            recl(nums, i + 1, l);
+        } else {
+            List<Integer> nl = new ArrayList<>();
+            nl.add(nums[i]);
+            recl(nums, i + 1, nl);
+        }
     }
 
 
+    boolean checkS(List<Integer> list, int num) {
+        for (int x : list) {
+            if (x % num == 0 || num % x == 0) continue;
+            else return false;
+        }
+        return true;
+    }
+
+    public int combinationSum4(int[] nums, int target) {
+        int[] dp = new int[target+1];
+        Arrays.fill(dp, -1);
+        return recsum(nums, target, 0, dp);
+    }
+    int recsum(int[] nums , int t , int s, int[]dp){
+        if (s==t)return 1;
+        if (s>t)return 0;
+        if(dp[s]!=-1)return dp[s];
+        int c =0;
+        for(int x : nums)c += recsum(nums, t, s+x, dp);
+        return dp[s]=c;
+    }
+
+    public int splitArray(int[] nums, int k) {
+        int n = nums.length;
+        int[] prefix = new int[n + 1];
+        for (int i = 0; i < n; i++) prefix[i + 1] = prefix[i] + nums[i];
+
+        int[][] dp = new int[n][k + 1];
+        for (int[] row : dp) Arrays.fill(row, -1);
+
+        return rec(nums, prefix, 0, k, dp);
+    }
+
+    int rec(int[] nums, int[] pre, int start, int k, int[][] dp) {
+        int n = nums.length;
+        if (k == 1) return pre[n] - pre[start];
+        if (dp[start][k] != -1) return dp[start][k];
+
+        int minLargest = Integer.MAX_VALUE;
+
+        for (int i = start + 1; i <= n - (k - 1); i++) {
+            int leftSum = pre[i] - pre[start];
+            int rightBest = rec(nums, pre, i, k - 1, dp);
+            int largest = Math.max(leftSum, rightBest);
+            minLargest = Math.min(minLargest, largest);
+
+            if (leftSum >= minLargest) break; // pruning
+        }
+
+        return dp[start][k] = minLargest;
+    }
 
 
     /// //////////////////////////////////
     public static void main(String[] args) {
         Lcode l = new Lcode();
 //        System.out.println(l.nthUglyNumber(7));
-//        System.out.println(-5>-10);
+        System.out.println(5 % 9 + " " + 9 % 5);
 //        System.out.println(l.isValidSerialization("#,#,3,5,#"));
 //        System.out.println(l.removeDuplicateLetters("bcabc"));
 //        System.out.println(l.isValidB("UuE6"));
