@@ -7641,17 +7641,18 @@ public class Lcode {
     }
 
     public int combinationSum4(int[] nums, int target) {
-        int[] dp = new int[target+1];
+        int[] dp = new int[target + 1];
         Arrays.fill(dp, -1);
         return recsum(nums, target, 0, dp);
     }
-    int recsum(int[] nums , int t , int s, int[]dp){
-        if (s==t)return 1;
-        if (s>t)return 0;
-        if(dp[s]!=-1)return dp[s];
-        int c =0;
-        for(int x : nums)c += recsum(nums, t, s+x, dp);
-        return dp[s]=c;
+
+    int recsum(int[] nums, int t, int s, int[] dp) {
+        if (s == t) return 1;
+        if (s > t) return 0;
+        if (dp[s] != -1) return dp[s];
+        int c = 0;
+        for (int x : nums) c += recsum(nums, t, s + x, dp);
+        return dp[s] = c;
     }
 
     public int splitArray(int[] nums, int k) {
@@ -7684,12 +7685,105 @@ public class Lcode {
         return dp[start][k] = minLargest;
     }
 
+    public int numberOfArithmeticSlices(int[] nums) {
+        if (nums.length < 3) return 0;
+        Map<String,Integer> dp =  new HashMap<>();
+        return recA(nums, 2, 2, nums[1] - nums[0], nums[1] ,dp);
+    }
+
+    int recA(int[] nums, int i, int size, int diff, int prev,Map<String,Integer>dp) {
+        if (i == nums.length) return size >= 3 ? size - 2 : 0;
+
+        String key = i+"-"+size+"-"+diff ; //+"-"+prev
+        if (dp.containsKey(key))return dp.get(key);
+        int count = 0;
+        if (nums[i] - prev == diff){
+            count += recA(nums, i + 1, size + 1, diff, nums[i] ,dp);
+        }
+        else {
+            if (size >= 3) count += size - 2;
+            count += recA(nums, i + 1, 2, nums[i] - prev, nums[i],dp);
+        }
+        dp.put(key,count);
+        return count;
+    }
+
+    public boolean canPartition(int[] nums) {
+        int sum = 0;
+        for (int n : nums) sum += n;
+        if (sum % 2 != 0) return false; // cannot split odd sum
+        int target = sum / 2;
+        Map<String, Boolean> dp = new HashMap<>();
+        return rec(nums, 0, 0, target, dp);
+    }
+
+    boolean rec(int[] nums, int i, int currSum, int target, Map<String, Boolean> dp) {
+        if (currSum > target) return false;      // pruning
+        if (currSum == target) return true;      // found valid subset
+        if (i == nums.length) return false;
+
+        String key = i + "-" + currSum;
+        if (dp.containsKey(key)) return dp.get(key);
+
+        boolean ans = rec(nums, i + 1, currSum + nums[i], target, dp) ||
+                rec(nums, i + 1, currSum, target, dp);
+
+        dp.put(key, ans);
+        return ans;
+    }
+
+    public boolean canIWin(int mi, int t) {
+        if (t <= mi)return true;
+        else return rec(mi,t,0,0);
+    }
+    // p1 = 4 + 2 = 6 [.] true , wins
+    // p2 = 3 [x]
+
+    boolean rec(int mi , int t, int p1 , int p2){
+        if(mi<0)return false;
+        if(mi+p1>=t)return true;
+        else if(mi+p2>=t)return false;
+        else return rec(mi-2,t,p1+mi,p2+mi-1);
+    }
+
+    public long countNoZeroPairs(long n) {
+        String s = String.valueOf(n);
+        int len = s.length();
+        long[][] dp = new long[len + 1][2]; // dp[pos][carry]
+        dp[0][0] = 1;
+
+        for (int pos = 0; pos < len; pos++) {
+            int digit = s.charAt(len - 1 - pos) - '0'; // get from rightmost
+
+            for (int carry = 0; carry <= 1; carry++) {
+                long curr = dp[pos][carry];
+                if (curr == 0) continue;
+
+                for (int da = 1; da <= 9; da++) {
+                    for (int db = 1; db <= 9; db++) {
+                        int sum = da + db + carry;
+                        int outDigit = sum % 10;
+                        int newCarry = sum / 10;
+
+                        if (outDigit == digit) {
+                            dp[pos + 1][newCarry] += curr;
+                        }
+                    }
+                }
+            }
+        }
+
+        return dp[len][0]; // only valid if no carry remains
+    }
+
 
     /// //////////////////////////////////
     public static void main(String[] args) {
         Lcode l = new Lcode();
+        System.out.println(l.countNoZeroPairs(11));
+//        System.out.println(l.canIWin(4,6));
 //        System.out.println(l.nthUglyNumber(7));
-        System.out.println(5 % 9 + " " + 9 % 5);
+//        System.out.println(5 % 9 + " " + 9 % 5);
 //        System.out.println(l.isValidSerialization("#,#,3,5,#"));
 //        System.out.println(l.removeDuplicateLetters("bcabc"));
 //        System.out.println(l.isValidB("UuE6"));
