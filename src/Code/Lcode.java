@@ -7773,7 +7773,7 @@ public class Lcode {
             }
         }
 
-        return dp[len][0]; // only valid if no carry remains
+        return dp[len][0];
     }
 
 
