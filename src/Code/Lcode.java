@@ -7687,24 +7687,23 @@ public class Lcode {
 
     public int numberOfArithmeticSlices(int[] nums) {
         if (nums.length < 3) return 0;
-        Map<String,Integer> dp =  new HashMap<>();
-        return recA(nums, 2, 2, nums[1] - nums[0], nums[1] ,dp);
+        Map<String, Integer> dp = new HashMap<>();
+        return recA(nums, 2, 2, nums[1] - nums[0], nums[1], dp);
     }
 
-    int recA(int[] nums, int i, int size, int diff, int prev,Map<String,Integer>dp) {
+    int recA(int[] nums, int i, int size, int diff, int prev, Map<String, Integer> dp) {
         if (i == nums.length) return size >= 3 ? size - 2 : 0;
 
-        String key = i+"-"+size+"-"+diff ; //+"-"+prev
-        if (dp.containsKey(key))return dp.get(key);
+        String key = i + "-" + size + "-" + diff; //+"-"+prev
+        if (dp.containsKey(key)) return dp.get(key);
         int count = 0;
-        if (nums[i] - prev == diff){
-            count += recA(nums, i + 1, size + 1, diff, nums[i] ,dp);
-        }
-        else {
+        if (nums[i] - prev == diff) {
+            count += recA(nums, i + 1, size + 1, diff, nums[i], dp);
+        } else {
             if (size >= 3) count += size - 2;
-            count += recA(nums, i + 1, 2, nums[i] - prev, nums[i],dp);
+            count += recA(nums, i + 1, 2, nums[i] - prev, nums[i], dp);
         }
-        dp.put(key,count);
+        dp.put(key, count);
         return count;
     }
 
@@ -7733,17 +7732,17 @@ public class Lcode {
     }
 
     public boolean canIWin(int mi, int t) {
-        if (t <= mi)return true;
-        else return rec(mi,t,0,0);
+        if (t <= mi) return true;
+        else return rec(mi, t, 0, 0);
     }
     // p1 = 4 + 2 = 6 [.] true , wins
     // p2 = 3 [x]
 
-    boolean rec(int mi , int t, int p1 , int p2){
-        if(mi<0)return false;
-        if(mi+p1>=t)return true;
-        else if(mi+p2>=t)return false;
-        else return rec(mi-2,t,p1+mi,p2+mi-1);
+    boolean rec(int mi, int t, int p1, int p2) {
+        if (mi < 0) return false;
+        if (mi + p1 >= t) return true;
+        else if (mi + p2 >= t) return false;
+        else return rec(mi - 2, t, p1 + mi, p2 + mi - 1);
     }
 
     public long countNoZeroPairs(long n) {
@@ -7776,11 +7775,102 @@ public class Lcode {
         return dp[len][0];
     }
 
+    public List<List<Integer>> pacificAtlantic(int[][] heights) {
+        int m = heights.length, n = heights[0].length;
+        int[][] array = new int[m][n];
+        List<List<Integer>> list = new ArrayList<>();
+
+        //  DFS from Pacific borders
+        for (int i = 0; i < m; i++) pacific(heights, i, 0, array);
+        for (int j = 0; j < n; j++) pacific(heights, 0, j, array);
+
+        //  DFS from Atlantic borders
+        for (int i = 0; i < m; i++) atlantic(heights, i, n - 1, array, heights[i][n - 1], new boolean[m][n]);
+        for (int j = 0; j < n; j++) atlantic(heights, m - 1, j, array, heights[m - 1][j], new boolean[m][n]);
+
+
+        // Collect cells where both oceans meet
+        for (int i = 0; i < m; i++) {
+            for (int j = 0; j < n; j++) {
+                if (array[i][j] == 2) list.add(List.of(i, j));
+            }
+        }
+
+        return list;
+    }
+
+    // DFS from Pacific
+    private void pacific(int[][] h, int x, int y, int[][] arr) {
+        int m = h.length, n = h[0].length;
+        if (x < 0 || y < 0 || x >= m || y >= n || arr[x][y] > 0) return;
+
+        arr[x][y] = 1; // mark as reachable by Pacific
+
+        // 4-direction DFS, only move to equal or higher heights
+        if (x + 1 < m && h[x + 1][y] >= h[x][y]) pacific(h, x + 1, y, arr);
+        if (x - 1 >= 0 && h[x - 1][y] >= h[x][y]) pacific(h, x - 1, y, arr);
+        if (y + 1 < n && h[x][y + 1] >= h[x][y]) pacific(h, x, y + 1, arr);
+        if (y - 1 >= 0 && h[x][y - 1] >= h[x][y]) pacific(h, x, y - 1, arr);
+    }
+
+    // DFS from Atlantic
+    private void atlantic(int[][] h, int x, int y, int[][] arr, int prevHeight, boolean[][] visited) {
+        int m = h.length, n = h[0].length;
+
+        // boundary check
+        if (x < 0 || y < 0 || x >= m || y >= n || arr[x][y] == 2) return;
+
+        // height check: only move to equal or higher heights
+        if (h[x][y] < prevHeight) return;
+
+        // already visited in this DFS
+        if (visited[x][y]) return;
+
+        visited[x][y] = true;
+
+        // mark array
+        if (arr[x][y] == 1) arr[x][y] = 2; // both oceans meet
+        else if (arr[x][y] == 0) arr[x][y] = 1; // Atlantic only
+
+        // 4-direction DFS
+        atlantic(h, x + 1, y, arr, h[x][y], visited);
+        atlantic(h, x - 1, y, arr, h[x][y], visited);
+        atlantic(h, x, y + 1, arr, h[x][y], visited);
+        atlantic(h, x, y - 1, arr, h[x][y], visited);
+    }
+
+    public int swimInWater(int[][] grid) {
+        int[][] DIRS = {{-1, 0}, {1, 0}, {0, 1}, {0, -1}};
+        int n = grid.length;
+        Queue<int[]> queue = new PriorityQueue<>(Comparator.comparingInt(a -> a[0]));
+        queue.add(new int[]{grid[0][0], 0, 0});
+        boolean[][] visited = new boolean[n][n];
+        visited[0][0] = true;
+
+        int res = 0;
+        while (!queue.isEmpty()) {
+            int[] poll = queue.poll();
+            int cur = poll[0], i = poll[1], j = poll[2];
+            res = Math.max(cur, res);
+
+            if (i == n - 1 && j == n - 1) return res;
+
+            for (int[] dir : DIRS) {
+                int ni = i + dir[0], nj = j + dir[1];
+                if (ni >= 0 && nj >= 0 && ni < n && nj < n && !visited[ni][nj]) {
+                    visited[ni][nj] = true;
+                    queue.add(new int[]{grid[ni][nj], ni, nj});
+                }
+            }
+        }
+        return -1;
+    }
+
 
     /// //////////////////////////////////
     public static void main(String[] args) {
         Lcode l = new Lcode();
-        System.out.println(l.countNoZeroPairs(11));
+//        System.out.println(l.countNoZeroPairs(11));
 //        System.out.println(l.canIWin(4,6));
 //        System.out.println(l.nthUglyNumber(7));
 //        System.out.println(5 % 9 + " " + 9 % 5);
