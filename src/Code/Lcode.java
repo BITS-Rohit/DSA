@@ -7866,6 +7866,31 @@ public class Lcode {
         return -1;
     }
 
+    public int[] avoidFlood(int[] rains) {
+        // we are dependent on no of 0
+        int n = rains.length;
+        int[] ans = new int[n];
+        Map<Integer, Integer> lakes = new HashMap<>();
+        TreeSet<Integer> DryDays = new TreeSet<>();
+
+        for (int i = 0; i < n; i++) {
+            int lake = rains[i];
+            if (lake == 0) {
+                DryDays.add(i);
+                ans[i] = 1; // Just filling up
+            } else {
+                ans[i] = -1;
+                if (lakes.containsKey(lake)) {
+                    Integer dryday = DryDays.ceiling(lakes.get(lake));
+                    if (dryday == null) return new int[0];
+                    else ans[dryday] = lake;
+                    DryDays.remove(dryday);
+                }
+                lakes.put(lake, i);
+            }
+        }
+        return ans;
+    }
 
     /// //////////////////////////////////
     public static void main(String[] args) {
