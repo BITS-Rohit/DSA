@@ -7892,9 +7892,50 @@ public class Lcode {
         return ans;
     }
 
+    public int numWaterBottles(int nb, int ne) {
+        int count =nb;
+        while(nb>=ne){
+            count+=nb/ne;
+            nb = (nb%ne) + (nb/ne);
+                    //---
+//            int bottles = nb/ne;
+//            nb%=ne;
+//            nb+=bottles;
+//            count+=bottles;
+        }
+        return count;
+    }
+
+    public int[] successfulPairs(int[] spells, int[] potions, long success) {
+        // brute force
+        int n = spells.length;
+        int m = potions.length;
+
+        Arrays.sort(potions);
+        int[] arr = new int[n];
+        for (int i = 0; i < n; i++) {
+            int s = 0, e = potions.length - 1;
+            int ans = potions.length; // default = no valid potion
+
+            while (s <= e) {
+                int mid = s + (e - s) / 2;
+
+                if ((long) potions[mid] * spells[i] >= success) {
+                    ans = mid;
+                    e = mid - 1;
+                }
+                else s = mid + 1;
+            }
+            arr[i]= potions.length - ans;
+        }
+        return arr;
+    }
+
+
     /// //////////////////////////////////
     public static void main(String[] args) {
         Lcode l = new Lcode();
+//        System.out.println(l.numWaterBottles(15,4));
 //        System.out.println(l.countNoZeroPairs(11));
 //        System.out.println(l.canIWin(4,6));
 //        System.out.println(l.nthUglyNumber(7));
