@@ -7930,7 +7930,29 @@ public class Lcode {
         }
         return arr;
     }
+    public long minTime(int[] skill, int[] mana) {
+        int n = skill.length;
+        int m = mana.length;
 
+        long[] finish = new long[n];
+        finish[0] = (long) skill[0] * mana[0];
+        for (int i = 1; i < n; i++) {
+            finish[i] = (long) skill[i] * mana[0] + finish[i - 1];
+        }
+
+        for (int i = 1; i < m; i++) {
+            long start = -1;
+            for (int j = 0; j < n; j++) {
+                start = Math.max(start, finish[j]) + (long) skill[j] * mana[i];
+            }
+            for (int j = n - 1; j >= 0; j--) {
+                finish[j] = start;
+                start -= (long) skill[j] * mana[i];
+            }
+        }
+
+        return finish[n - 1];
+    }
 
     /// //////////////////////////////////
     public static void main(String[] args) {
