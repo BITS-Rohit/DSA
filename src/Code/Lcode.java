@@ -7954,6 +7954,18 @@ public class Lcode {
         return finish[n - 1];
     }
 
+    static int countSquareFreeDivisors(int n) {
+        int k = 0; // count distinct prime factors
+        for (int i = 2; i * i <= n; i++) {
+            if (n % i == 0) {
+                k++;
+                while (n % i == 0) n /= i; // remove all multiples of this prime
+            }
+        }
+        if (n > 1) k++; // last prime factor (if any)
+        return (1 << k) - 1; // 2^k - 1
+    }
+
     /// //////////////////////////////////
     public static void main(String[] args) {
         Lcode l = new Lcode();
