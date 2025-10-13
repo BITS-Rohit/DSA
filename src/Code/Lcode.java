@@ -7966,6 +7966,7 @@ public class Lcode {
         return (1 << k) - 1; // 2^k - 1
     }
 
+
     /// //////////////////////////////////
     public static void main(String[] args) {
         Lcode l = new Lcode();
@@ -8675,4 +8676,28 @@ class MagicDictionary {
     }
 }
 
+class PeekingIterator implements Iterator<Integer> {
+    List<Integer> list;
+    int idx =0;
+    public PeekingIterator(Iterator<Integer> iterator) {
+        // initialize any member here.
+        list = new ArrayList<>();
+        while(iterator.hasNext())list.add(iterator.next());
+    }
 
+    // Returns the next element in the iteration without advancing the iterator.
+    public Integer peek() {
+        if (idx < list.size())return list.get(idx);
+        else return Integer.MAX_VALUE;
+    }
+
+    @Override
+    public Integer next() {
+        return list.get(idx++);
+    }
+
+    @Override
+    public boolean hasNext() {
+        return idx<list.size();
+    }
+}
