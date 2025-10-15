@@ -1908,17 +1908,6 @@ public class Lcode {
     }
 
     /// //////////////////////////////////
-    public String getPermutation(int n, int k) {
-        if (n == 1) {
-            return "1";
-        }
-
-        List<String> permutes = new ArrayList<>();
-        getpermute(permutes, n);
-        Collections.sort(permutes);
-
-        return permutes.get(k - 1);
-    }
 
     private void getpermute(List<String> permutations, int n) {
         permutations.add("1");
@@ -7987,6 +7976,60 @@ public class Lcode {
         }
         return true;
     }
+
+    public String getPermutation(int n, int k) {
+        int[] arr = new int[n];
+        for(int i=1; i<=n; i++) arr[i-1] = i;
+
+        while(k != 1){
+            int idx = -1;
+            for(int i = arr.length-2; i>=0; i--){
+                if(arr[i] < arr[i+1]){
+                    idx = i;
+                    break;
+                }
+            }
+
+            if(idx == -1){
+                int s=0, e=arr.length-1;
+                while(s<e){
+                    int temp = arr[s];
+                    arr[s] = arr[e];
+                    arr[e] = temp;
+                    s++; e--;
+                }
+                return gs(arr);
+            }
+
+            for(int i = arr.length-1; i>idx; i--){
+                if(arr[i] > arr[idx]){
+                    int temp = arr[i];
+                    arr[i] = arr[idx];
+                    arr[idx] = temp;
+                    break;
+                }
+            }
+
+            int s = idx + 1, e = arr.length - 1;
+            while(s < e){
+                int temp = arr[s];
+                arr[s] = arr[e];
+                arr[e] = temp;
+                s++; e--;
+            }
+
+            k--;
+        }
+
+        return gs(arr);
+    }
+
+    String gs(int[] arr){
+        StringBuilder sb = new StringBuilder();
+        for(int x: arr) sb.append(x);
+        return sb.toString();
+    }
+
 
 
     /// //////////////////////////////////
