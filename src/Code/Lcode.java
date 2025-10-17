@@ -7882,11 +7882,11 @@ public class Lcode {
     }
 
     public int numWaterBottles(int nb, int ne) {
-        int count =nb;
-        while(nb>=ne){
-            count+=nb/ne;
-            nb = (nb%ne) + (nb/ne);
-                    //---
+        int count = nb;
+        while (nb >= ne) {
+            count += nb / ne;
+            nb = (nb % ne) + (nb / ne);
+            //---
 //            int bottles = nb/ne;
 //            nb%=ne;
 //            nb+=bottles;
@@ -7912,13 +7912,13 @@ public class Lcode {
                 if ((long) potions[mid] * spells[i] >= success) {
                     ans = mid;
                     e = mid - 1;
-                }
-                else s = mid + 1;
+                } else s = mid + 1;
             }
-            arr[i]= potions.length - ans;
+            arr[i] = potions.length - ans;
         }
         return arr;
     }
+
     public long minTime(int[] skill, int[] mana) {
         int n = skill.length;
         int m = mana.length;
@@ -7979,30 +7979,31 @@ public class Lcode {
 
     public String getPermutation(int n, int k) {
         int[] arr = new int[n];
-        for(int i=1; i<=n; i++) arr[i-1] = i;
+        for (int i = 1; i <= n; i++) arr[i - 1] = i;
 
-        while(k != 1){
+        while (k != 1) {
             int idx = -1;
-            for(int i = arr.length-2; i>=0; i--){
-                if(arr[i] < arr[i+1]){
+            for (int i = arr.length - 2; i >= 0; i--) {
+                if (arr[i] < arr[i + 1]) {
                     idx = i;
                     break;
                 }
             }
 
-            if(idx == -1){
-                int s=0, e=arr.length-1;
-                while(s<e){
+            if (idx == -1) {
+                int s = 0, e = arr.length - 1;
+                while (s < e) {
                     int temp = arr[s];
                     arr[s] = arr[e];
                     arr[e] = temp;
-                    s++; e--;
+                    s++;
+                    e--;
                 }
                 return gs(arr);
             }
 
-            for(int i = arr.length-1; i>idx; i--){
-                if(arr[i] > arr[idx]){
+            for (int i = arr.length - 1; i > idx; i--) {
+                if (arr[i] > arr[idx]) {
                     int temp = arr[i];
                     arr[i] = arr[idx];
                     arr[idx] = temp;
@@ -8011,11 +8012,12 @@ public class Lcode {
             }
 
             int s = idx + 1, e = arr.length - 1;
-            while(s < e){
+            while (s < e) {
                 int temp = arr[s];
                 arr[s] = arr[e];
                 arr[e] = temp;
-                s++; e--;
+                s++;
+                e--;
             }
 
             k--;
@@ -8024,17 +8026,143 @@ public class Lcode {
         return gs(arr);
     }
 
-    String gs(int[] arr){
+    String gs(int[] arr) {
         StringBuilder sb = new StringBuilder();
-        for(int x: arr) sb.append(x);
+        for (int x : arr) sb.append(x);
         return sb.toString();
     }
 
 
+    public int maxPoints(int[][] points) {
+        int max = 0;
+        for (int i = 0; i < points.length; i++) {
+            int ol = 0, cur = 0;
 
+            Map<String, Integer> map = new HashMap<>();
+            for (int j = i + 1; j < points.length; j++) {
+                int dx = points[j][0] - points[i][0];
+                int dy = points[j][1] - points[i][1];
+
+                if (dx == 0 || dy == 0) {
+                    ol++;
+                    continue;
+                }
+
+                int gcd = gcd(dx, dy);
+                dx /= gcd;
+                dy /= gcd;
+
+                if (dx < 0) {
+                    dx *= -1;
+                    dy *= -1;
+                }
+                String slope = dy + "/" + dx;
+                map.put(slope, map.getOrDefault(slope, 0) + 1);
+
+                cur = Math.max(cur, map.get(slope));
+            }
+            max = Math.max(max, cur + ol);
+        }
+        return max;
+    }
+
+    int gcd(int a, int b) {
+        if (b == 0) return a;
+        return gcd(b, a % b);
+    }
+
+    public int lastStoneWeightII(int[] nums) {
+        int sum = Arrays.stream(nums).sum();
+        boolean[] dp = new boolean[(sum / 2) + 1];
+        dp[0] = true;
+
+        for (int x : nums) {
+            for (int j = sum / 2; j >= x; j--) dp[j] = dp[j] || dp[j - x];
+        }
+        for (int i = sum / 2; i >= 0; i--) if (dp[i]) return sum - 2 * i;
+        return 0;
+    }
+
+    public static void r_p_s_game() {
+        // --- Setup ---
+        Scanner sc = new Scanner(System.in);
+        Random ran = new Random();
+
+        // Array to easily map integer choices to their names for printing
+        String[] choices = {"Rock", "Paper", "Scissors"};
+
+        System.out.println("Welcome to Rock, Paper, Scissors!");
+
+        while (true) {
+            System.out.println("\n----------------------------------------------------");
+            System.out.println("Enter your choice:");
+            System.out.println("  Rock ( 0 )");
+            System.out.println("  Paper( 1 )");
+            System.out.println("  Scissor( 2 )");
+            System.out.println("  Quit ( q )");
+            System.out.print(">>> ");
+
+            // Read user input as a String
+            String ans = sc.next();
+
+            // Check for quit command
+            if (ans.equalsIgnoreCase("q")) {
+                System.out.println("\nThanks for playing! Goodbye.");
+                break;
+            }
+
+            int userChoice = -1; // Initialize with an invalid value
+            boolean isValid = false;
+
+            // --- Input Validation ---
+            try {
+                userChoice = Integer.parseInt(ans);
+                if (userChoice >= 0 && userChoice <= 2) {
+                    isValid = true;
+                } else {
+                    System.out.println("\n[INVALID INPUT] Please enter 0, 1, 2, or q.");
+                }
+            } catch (NumberFormatException e) {
+                System.out.println("\n[INVALID INPUT] Please enter a number (0, 1, 2) or 'q'.");
+            }
+
+            // Only proceed if the input was valid
+            if (isValid) {
+                // --- System Choice Generation ---
+                // Generates a random integer: 0, 1, or 2
+                int sysChoice = ran.nextInt(3);
+
+                String userMove = choices[userChoice];
+                String sysMove = choices[sysChoice];
+
+                System.out.println("\nYour move: " + userMove);
+                System.out.println("System's move: " + sysMove);
+
+                // --- Game Logic ---
+                if (userChoice == sysChoice) {
+                    System.out.println(">>> IT'S A TIE! Try again.");
+                }
+                // Win conditions: (Rock vs Scissors) OR (Paper vs Rock) OR (Scissors vs Paper)
+                else if ((userChoice == 0 && sysChoice == 2) ||
+                        (userChoice == 1 && sysChoice == 0) ||
+                        (userChoice == 2 && sysChoice == 1)) {
+                    System.out.println(">>> YOU WIN! Congratulations!");
+                }
+                // All other cases are losses
+                else {
+                    System.out.println(">>> YOU LOSE! The system beat you.");
+                }
+            }
+        }
+
+        // Close the scanner resource when the game loop is exited
+        sc.close();
+    }
     /// //////////////////////////////////
     public static void main(String[] args) {
         Lcode l = new Lcode();
+        r_p_s_game();
+
 //        System.out.println(l.numWaterBottles(15,4));
 //        System.out.println(l.countNoZeroPairs(11));
 //        System.out.println(l.canIWin(4,6));
@@ -8743,16 +8871,17 @@ class MagicDictionary {
 
 class PeekingIterator implements Iterator<Integer> {
     List<Integer> list;
-    int idx =0;
+    int idx = 0;
+
     public PeekingIterator(Iterator<Integer> iterator) {
         // initialize any member here.
         list = new ArrayList<>();
-        while(iterator.hasNext())list.add(iterator.next());
+        while (iterator.hasNext()) list.add(iterator.next());
     }
 
     // Returns the next element in the iteration without advancing the iterator.
     public Integer peek() {
-        if (idx < list.size())return list.get(idx);
+        if (idx < list.size()) return list.get(idx);
         else return Integer.MAX_VALUE;
     }
 
@@ -8763,6 +8892,6 @@ class PeekingIterator implements Iterator<Integer> {
 
     @Override
     public boolean hasNext() {
-        return idx<list.size();
+        return idx < list.size();
     }
 }
