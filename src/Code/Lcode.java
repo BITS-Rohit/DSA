@@ -8083,7 +8083,7 @@ public class Lcode {
         return 0;
     }
 
-    public static void r_p_s_game() {
+    public void r_p_s_game() {
         // --- Setup ---
         Scanner sc = new Scanner(System.in);
         Random ran = new Random();
@@ -8161,7 +8161,7 @@ public class Lcode {
     /// //////////////////////////////////
     public static void main(String[] args) {
         Lcode l = new Lcode();
-        r_p_s_game();
+        l.r_p_s_game();
 
 //        System.out.println(l.numWaterBottles(15,4));
 //        System.out.println(l.countNoZeroPairs(11));
