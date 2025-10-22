@@ -2511,7 +2511,7 @@ public class Lcode {
         return c ? removeOccurrences(str.toString(), part) : str.toString();
     }
 
-    public String longestPalindrome(String s) {
+    public String longest_Palindrome(String s) {
         if (s == null || s.isEmpty()) return "";
 
         String rev = new StringBuilder(s).reverse().toString();
@@ -7355,19 +7355,6 @@ public class Lcode {
         return slots == 0;
     }
 
-    public String removeKdigits(String s, int k) {
-        Stack<Character> stack = new Stack<>();
-        for (char c : s.toCharArray()) {
-            if (!stack.isEmpty() && stack.peek() > c && k > 0) {
-                stack.pop();
-                k--;
-            }
-            stack.push(c);
-        }
-        StringBuilder sb = new StringBuilder();
-        while (!stack.isEmpty()) sb.append(stack.pop());
-        return sb.reverse().toString();
-    }
 
     static int[] dp = {6, 6};
 
@@ -8181,6 +8168,134 @@ public class Lcode {
         return total;
     }
 
+    public int computeArea(int ax1, int ay1, int ax2, int ay2,
+                           int bx1, int by1, int bx2, int by2) {
+        int area1 = (ax2 - ax1) * (ay2 - ay1);
+        int area2 = (bx2 - bx1) * (by2 - by1);
+
+        int overlapX = Math.max(0, Math.min(ax2, bx2) - Math.max(ax1, bx1));
+        int overlapY = Math.max(0, Math.min(ay2, by2) - Math.max(ay1, by1));
+        int overlap = overlapX * overlapY;
+
+        return area1 + area2 - overlap;
+    }
+
+    public String removeKdigits(String num, int k) {
+        Stack<Character> stack = new Stack<>();
+
+        for (char c : num.toCharArray()) {
+            while (!stack.isEmpty() && k > 0 && stack.peek() > c) {
+                stack.pop();
+                k--;
+            }
+            stack.push(c);
+        }
+
+        while (k > 0 && !stack.isEmpty()) {
+            stack.pop();
+            k--;
+        }
+
+        StringBuilder sb = new StringBuilder();
+        for (char c : stack) sb.append(c);
+        while (sb.length() > 1 && sb.charAt(0) == '0') sb.deleteCharAt(0); // leading zeros
+        return sb.isEmpty() ? "0" : sb.toString();
+    }
+
+    public int longestPalindrome(String s) {
+        int[] cap = new int[26];
+        int[] low = new int[26];
+
+        for (char c : s.toCharArray()) {
+            if (c - 'A' >= 0 && c - 'A' < 26) { // it was UpperCase
+                cap[c - 'A']++;
+            } else low[c - 'a']++;
+        }
+
+        boolean found = false;
+        int len = 0;
+
+        for (int x : low) {
+            if (x % 2 == 1) {
+                if (!found) {
+                    found = true;
+                    len += x;
+                } else len += x - 1;
+
+            } else if (x % 2 == 0) len += x;
+        }
+
+        for (int x : cap) {
+            if (x % 2 == 1) {
+                if (!found) {
+                    found = true;
+                    len += x;
+                } else len += x - 1;
+            } else if (x % 2 == 0) len += x;
+        }
+
+        return len;
+    }
+
+    public int[] maxNumber(int[] nums1, int[] nums2, int k) {
+        Stack<Integer> stacks = new Stack<>();
+
+        int[] a1 = new int[nums1.length];
+        int[] a2 = new int[nums2.length];
+
+        // we should use stack to get the max num , in-place
+        for (int i = 0; i < nums1.length; i++) {
+            while (!stacks.isEmpty() && nums1[stacks.peek()] < nums1[i]) a1[stacks.pop()] = i;
+            stacks.push(i);
+        }
+
+        stacks = new Stack<>();
+        for (int i = 0; i < nums2.length; i++) {
+            while (!stacks.isEmpty() && nums2[stacks.peek()] < nums2[i]) a2[stacks.pop()] = i;
+            stacks.push(i);
+        }
+
+        int[] arr = new int[k];
+        int i = 0, j = 0, m = 0;
+
+        // n1 = 3,4,6,5 //a1 =  3 , 3, 3, 3, 4 -- i-based storing for direct next idx jump
+        // n2 = 9,1,2,5,8,3 // a2 =  0 , 4, 4, 4, 4, 5
+
+        while (m < k) {
+            if (a1[i] > a2[j]){
+                int idx = a1[i]; // 3
+                arr[m++]= nums1[idx]; // 6
+                i = a1[idx];
+            }
+            else {
+                int idx = a2[j];
+                arr[m++] = nums2[idx];
+                j = idx;
+            }
+        }
+        return arr;
+    }
+
+    public String frequencySort(String s) {
+        Map<Character, Integer> map = new HashMap<>();
+        for(char c : s.toCharArray())map.put(c, map.getOrDefault(c , 0 )+1);
+
+        Queue<String> queue = new PriorityQueue<>(
+                (a, b) -> Integer.parseInt(b.split("#")[1]) - Integer.parseInt(a.split("#")[1])
+        );
+
+        for(char c : map.keySet())queue.add(c+"#"+map.get(c));
+
+        StringBuilder sb = new StringBuilder();
+        while(!queue.isEmpty()){
+            String x = queue.poll();
+            int idx = Integer.parseInt(x.split("#")[1]);
+            sb.append(x.split("#")[0].repeat(Math.max(0, idx)));
+        }
+        return sb.toString();
+    }
+
+
     /// //////////////////////////////////
     public static void main(String[] args) {
         Lcode l = new Lcode();
@@ -8918,3 +9033,46 @@ class PeekingIterator implements Iterator<Integer> {
         return idx < list.size();
     }
 }
+
+class FrequencyTracker {
+    int[] arr;
+    Map<Integer, Integer> freqCount; // frequency -> count of numbers with this frequency
+
+    public FrequencyTracker() {
+        arr = new int[100001];
+        freqCount = new HashMap<>();
+    }
+
+    public void add(int number) {
+        int oldFreq = arr[number];
+        int newFreq = oldFreq + 1;
+
+        arr[number] = newFreq;
+
+        if (oldFreq > 0) {
+            freqCount.put(oldFreq, freqCount.get(oldFreq) - 1);
+            if (freqCount.get(oldFreq) == 0) freqCount.remove(oldFreq);
+        }
+
+        freqCount.put(newFreq, freqCount.getOrDefault(newFreq, 0) + 1);
+    }
+
+    public void deleteOne(int number) {
+        if (arr[number] == 0) return;
+
+        int oldFreq = arr[number];
+        int newFreq = oldFreq - 1;
+
+        arr[number] = newFreq;
+        freqCount.put(oldFreq, freqCount.get(oldFreq) - 1);
+
+        if (freqCount.get(oldFreq) == 0) freqCount.remove(oldFreq);
+        if (newFreq > 0) freqCount.put(newFreq, freqCount.getOrDefault(newFreq, 0) + 1);
+    }
+
+    public boolean hasFrequency(int frequency) {
+        return freqCount.containsKey(frequency);
+    }
+}
+
+
