@@ -8262,12 +8262,11 @@ public class Lcode {
         // n2 = 9,1,2,5,8,3 // a2 =  0 , 4, 4, 4, 4, 5
 
         while (m < k) {
-            if (a1[i] > a2[j]){
+            if (a1[i] > a2[j]) {
                 int idx = a1[i]; // 3
-                arr[m++]= nums1[idx]; // 6
+                arr[m++] = nums1[idx]; // 6
                 i = a1[idx];
-            }
-            else {
+            } else {
                 int idx = a2[j];
                 arr[m++] = nums2[idx];
                 j = idx;
@@ -8278,21 +8277,88 @@ public class Lcode {
 
     public String frequencySort(String s) {
         Map<Character, Integer> map = new HashMap<>();
-        for(char c : s.toCharArray())map.put(c, map.getOrDefault(c , 0 )+1);
+        for (char c : s.toCharArray()) map.put(c, map.getOrDefault(c, 0) + 1);
 
         Queue<String> queue = new PriorityQueue<>(
                 (a, b) -> Integer.parseInt(b.split("#")[1]) - Integer.parseInt(a.split("#")[1])
         );
 
-        for(char c : map.keySet())queue.add(c+"#"+map.get(c));
+        for (char c : map.keySet()) queue.add(c + "#" + map.get(c));
 
         StringBuilder sb = new StringBuilder();
-        while(!queue.isEmpty()){
+        while (!queue.isEmpty()) {
             String x = queue.poll();
             int idx = Integer.parseInt(x.split("#")[1]);
             sb.append(x.split("#")[0].repeat(Math.max(0, idx)));
         }
         return sb.toString();
+    }
+
+    public List<List<Integer>> palindromePairs(String[] words) {
+        List<List<Integer>> res = new ArrayList<>();
+        Set<String> seen = new HashSet<>();            // to de-duplicate pairs like "i#j"
+        Map<Character, List<String>> map = new HashMap<>();
+        List<Integer> emptyIndices = new ArrayList<>();
+
+        // Build maps & check candidate pairs
+        for (int i = 0; i < words.length; i++) {
+            String s = words[i];
+            if (s.isEmpty()) {
+                emptyIndices.add(i);
+                continue;
+            }
+
+            char first = s.charAt(0);
+            char last = s.charAt(s.length() - 1);
+
+            // Candidates that start with this word's first char might pair with this word
+            if (map.containsKey(first)) getPalinPair(i, s, map.get(first), res, seen);
+            map.computeIfAbsent(first, k -> new ArrayList<>()).add(s + "#" + i);
+
+            // Candidates that start with this word's last char might pair with this word
+            if (map.containsKey(last)) getPalinPair(i, s, map.get(last), res, seen);
+            map.computeIfAbsent(last, k -> new ArrayList<>()).add(s + "#" + i);
+        }
+
+        // Handle empty word(s): pair empty with any palindrome word
+        for (int idxEmpty : emptyIndices) {
+            for (int j = 0; j < words.length; j++) {
+                if (j == idxEmpty) continue;
+                if (isPalin(words[j])) {
+                    String a = idxEmpty + "#" + j;
+                    String b = j + "#" + idxEmpty;
+                    if (seen.add(a)) res.add(List.of(idxEmpty, j));
+                    if (seen.add(b)) res.add(List.of(j, idxEmpty));
+                }
+            }
+        }
+
+        return res;
+    }
+
+    // Check candidate list entries (stored as "word#index")
+    void getPalinPair(int i, String word, List<String> list, List<List<Integer>> res, Set<String> seen) {
+        for (String s : list) {
+            String[] st = s.split("#");
+            String other = st[0];
+            int idx = Integer.parseInt(st[1]);
+            if (idx == i) continue; // skip same index
+
+            // if other + word is palindrome -> (idx, i)
+            if (isPalindrome(other + word))
+                if (seen.add(idx + "#" + i)) res.add(List.of(idx, i)); // key = idx + "#" + i;
+
+            // if word + other is palindrome -> (i, idx)
+            if (isPalindrome(word + other))
+                if (seen.add(i + "#" + idx)) res.add(List.of(i, idx)); // key = i + "#" + idx
+        }
+    }
+
+    // simple two-pointer palindrome check
+    boolean isPalin(String s) {
+        int l = 0, r = s.length() - 1;
+        while (l < r) if (s.charAt(l++) != s.charAt(r--)) return false;
+        return true;
     }
 
 
