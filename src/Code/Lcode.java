@@ -5948,7 +5948,7 @@ public class Lcode {
         return -1;
     }
 
-    public int findKthNumber(int n, int k) {
+    public int findKthNumber_(int n, int k) {
 //        if(k==1)return 1;
         List<String> list = new ArrayList<>();
         for (int i = 1; i <= 13; i++) {
@@ -8361,6 +8361,40 @@ public class Lcode {
         return true;
     }
 
+    public boolean increasingTriplet(int[] nums) {
+        int first = Integer.MAX_VALUE;
+        int second = Integer.MAX_VALUE;
+
+        for (int x : nums) {
+            if (x <= first) {
+                first = x;              // smallest so far
+            } else if (x <= second) {
+                second = x;             // 2nd smallest so far
+            } else {
+                return true;            // found third number > both
+            }
+        }
+        return false;
+    }
+
+    public int findKthNumber(int n, int k) {
+        List<Integer> res = new ArrayList<>();
+        int curr = 1;
+        for (int i = 0; i < n; i++) {
+            if (k==0)return curr;
+            res.add(curr);
+            if (curr * 10 <= n) {
+                curr *= 10;
+            } else {
+                while (curr % 10 == 9 || curr + 1 > n)
+                    curr /= 10;
+                curr++;
+            }
+            k--;
+        }
+        System.out.println(res);
+        return curr;
+    }
 
     /// //////////////////////////////////
     public static void main(String[] args) {
