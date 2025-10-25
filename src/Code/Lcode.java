@@ -8238,41 +8238,40 @@ public class Lcode {
     }
 
     public int[] maxNumber(int[] nums1, int[] nums2, int k) {
-        Stack<Integer> stacks = new Stack<>();
+        int[] ans = new int[k];
+        Stack<Integer> s1 = new Stack<>();
+        Stack<Integer> s2 = new Stack<>();
 
-        int[] a1 = new int[nums1.length];
-        int[] a2 = new int[nums2.length];
-
-        // we should use stack to get the max num , in-place
-        for (int i = 0; i < nums1.length; i++) {
-            while (!stacks.isEmpty() && nums1[stacks.peek()] < nums1[i]) a1[stacks.pop()] = i;
-            stacks.push(i);
+        for(int x : nums1){
+            while(!s1.isEmpty() && s1.peek()< x)s1.pop();
+            s1.push(x);
         }
 
-        stacks = new Stack<>();
-        for (int i = 0; i < nums2.length; i++) {
-            while (!stacks.isEmpty() && nums2[stacks.peek()] < nums2[i]) a2[stacks.pop()] = i;
-            stacks.push(i);
+        for(int x : nums2){
+            while(!s2.isEmpty() && s2.peek()< x)s2.pop();
+            s2.push(x);
         }
 
-        int[] arr = new int[k];
-        int i = 0, j = 0, m = 0;
+        int[] a = new int[s1.size()];
+        int[] b = new int[s2.size()];
+        int j = s1.size()-1;
 
-        // n1 = 3,4,6,5 //a1 =  3 , 3, 3, 3, 4 -- i-based storing for direct next idx jump
-        // n2 = 9,1,2,5,8,3 // a2 =  0 , 4, 4, 4, 4, 5
+        while(!s1.isEmpty())a[j--]= s1.pop();
+        j=s2.size()-1;
+        while(!s2.isEmpty())b[j--]= s2.pop();
 
-        while (m < k) {
-            if (a1[i] > a2[j]) {
-                int idx = a1[i]; // 3
-                arr[m++] = nums1[idx]; // 6
-                i = a1[idx];
-            } else {
-                int idx = a2[j];
-                arr[m++] = nums2[idx];
-                j = idx;
-            }
+        int x = 0 , y = 0;
+        j=0;
+        // Greedily now match nums
+        while(x < a.length && y < b.length){
+            if (a[x] > b[y]) ans[j++]= a[x++];
+            else ans[j++] = b[y++];
         }
-        return arr;
+
+        while(x<a.length)ans[j++]= a[x++];
+        while(y<b.length)ans[j++]= b[y++];
+
+        return ans;
     }
 
     public String frequencySort(String s) {
@@ -8381,7 +8380,7 @@ public class Lcode {
         List<Integer> res = new ArrayList<>();
         int curr = 1;
         for (int i = 0; i < n; i++) {
-            if (k==0)return curr;
+            if (k == 0) return curr;
             res.add(curr);
             if (curr * 10 <= n) {
                 curr *= 10;
@@ -8396,10 +8395,152 @@ public class Lcode {
         return curr;
     }
 
+    public int strongPasswordChecker(String s) {
+        int n = s.length();
+        boolean hasLower = false, hasUpper = false, hasDigit = false;
+
+        for (char c : s.toCharArray()) {
+            if (Character.isLowerCase(c)) hasLower = true;
+            else if (Character.isUpperCase(c)) hasUpper = true;
+            else if (Character.isDigit(c)) hasDigit = true;
+        }
+
+        int missingTypes = 0;
+        if (!hasLower) missingTypes++;
+        if (!hasUpper) missingTypes++;
+        if (!hasDigit) missingTypes++;
+
+        List<Integer> repeats = new ArrayList<>();
+        int i = 2;
+        while (i < n) {
+            if (s.charAt(i) == s.charAt(i - 1) && s.charAt(i) == s.charAt(i - 2)) {
+                int len = 3;
+                i++;
+                while (i < n && s.charAt(i) == s.charAt(i - 1)) {
+                    len++;
+                    i++;
+                }
+                repeats.add(len);
+            } else i++;
+        }
+
+        if (n < 6) return Math.max(missingTypes, 6 - n);
+
+        int over = Math.max(0, n - 20);
+        int delete = over, replace = 0;
+
+        for (int mod = 0; mod < 3; mod++) {
+            for (int j = 0; j < repeats.size() && over > 0; j++) {
+                int len = repeats.get(j);
+                if (len < 3 || len % 3 != mod) continue;
+                int need = Math.min(over, mod + 1);
+                repeats.set(j, len - need);
+                over -= need;
+            }
+        }
+
+        for (int len : repeats) if (len >= 3) replace += len / 3;
+        int max = Math.max(missingTypes, replace);
+        return n <= 20 ? max : delete + max;
+    }
+
+    public int maxDistance(List<List<Integer>> arrays) {
+        int minVal = arrays.get(0).get(0);
+        int maxVal = arrays.get(0).get(arrays.get(0).size() - 1);
+        int maxDist = 0;
+
+        for (int i = 1; i < arrays.size(); i++) {
+            List<Integer> curr = arrays.get(i);
+            int currMin = curr.get(0);
+            int currMax = curr.get(curr.size() - 1);
+
+            maxDist = Math.max(maxDist,
+                    Math.max(Math.abs(currMax - minVal), Math.abs(maxVal - currMin)));
+
+            minVal = Math.min(minVal, currMin);
+            maxVal = Math.max(maxVal, currMax);
+        }
+
+        return maxDist;
+    }
+
+    static class CusClass {
+        int size; // remaining count
+        int last; // last execution time
+
+        CusClass(int s, int l) {
+            size = s;
+            last = l;
+        }
+    }
+
+
+    public int leastInterval(char[] tasks, int n) {
+        int[] freq = new int[26];
+        for (char c : tasks) freq[c - 'A']++;
+
+        // Priority by remaining size (desc)
+        PriorityQueue<CusClass> pq = new PriorityQueue<>((a, b) -> b.size - a.size);
+        for (int i = 0; i < 26; i++)
+            if (freq[i] > 0) pq.add(new CusClass(freq[i], -1));
+
+        int time = 0;
+
+        while (!pq.isEmpty()) {
+            List<CusClass> skipped = new ArrayList<>();
+
+            while (!pq.isEmpty()) {
+                CusClass task = pq.poll();
+
+                if (task.last == -1 || time - task.last >= n + 1) {
+                    // execute
+                    task.size--;
+                    task.last = time;
+                    if (task.size > 0) pq.add(task);
+                    break;
+                } else {
+                    skipped.add(task);
+                }
+            }
+            pq.addAll(skipped);
+            time++;
+        }
+
+        return time;
+    }
+
+    public int findUnsortedSubarray(int[] nums) {
+        int n = nums.length;
+        int left = n, right = 0;
+        int maxSoFar = Integer.MIN_VALUE;
+        int minSoFar = Integer.MAX_VALUE;
+
+        for (int i = 0; i < n; i++) {
+            // left to right
+            maxSoFar = Math.max(maxSoFar, nums[i]);
+            if (nums[i] < maxSoFar) {
+                right = i;
+            }
+
+            // right to left
+            int j = n - 1 - i;
+            minSoFar = Math.min(minSoFar, nums[j]);
+            if (nums[j] > minSoFar) {
+                left = j;
+            }
+        }
+
+        return right > left ? right - left + 1 : 0;
+    }
+
+
+
     /// //////////////////////////////////
     public static void main(String[] args) {
         Lcode l = new Lcode();
-        l.r_p_s_game();
+
+//        System.out.println(l.strongPasswordChecker("bbaaaaaaaaaaaaaaacccccc"));
+//        l.r_p_s_game();
 
 //        System.out.println(l.numWaterBottles(15,4));
 //        System.out.println(l.countNoZeroPairs(11));
