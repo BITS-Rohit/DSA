@@ -8533,9 +8533,112 @@ public class Lcode {
         return right > left ? right - left + 1 : 0;
     }
 
+    public List<Integer> findMinHeightTrees(int n, int[][] edges) {
+        List<Integer> l = new ArrayList<>();
+        if (n==1){
+            l.add(0);
+            return l;
+        }
+        List<List<Integer>> graph = new ArrayList<>();
+        for (int i = 0; i < n; i++) graph.add(new ArrayList<>());
+        int[] degree = new int[n];
+        for (int[] edge : edges) {
+            int u = edge[0], v = edge[1];
+            graph.get(u).add(v);
+            graph.get(v).add(u);
+            degree[u]++;
+            degree[v]++;
+        }
+        Queue<Integer> queue = new LinkedList<>();
+        for (int i = 0; i < degree.length; i++) if (degree[i]==1)queue.offer(i);
 
+        while (n > 2) {
+            int size = queue.size();
+            n -= size; // reduce total count
+            for (int i = 0; i < size; i++) {
+                int leaf = queue.poll();
+                for (int nb : graph.get(leaf)) {
+                    degree[nb]--;
+                    if (degree[nb] == 1) queue.offer(nb); // if become leaf add again
+                }
+            }
+        }
+        l.addAll(queue);
+        return l;
+    }
 
-    /// //////////////////////////////////
+    static class Pair {
+        String s;
+        int step;
+        Pair(String s, int step) {
+            this.s = s;
+            this.step = step;
+        }
+    }
+
+    public int minMutation(String st, String e, String[] bank) {
+        Set<String> set = new HashSet<>();
+        Collections.addAll(set, bank);
+        List<Character> list = List.of('A', 'C', 'G', 'T');
+
+        if (!set.contains(e)) return -1; // end must be valid
+
+        Queue<Pair> q = new LinkedList<>();
+        q.offer(new Pair(st, 0));
+
+        while (!q.isEmpty()) {
+            Pair a = q.poll();
+            if (a.s.equals(e)) return a.step;
+
+            char[] chars = a.s.toCharArray();
+            for (int i = 0; i < chars.length; i++) {
+                char old = chars[i];
+                for (char c : list) {
+                    if (c == old) continue;
+
+                    chars[i] = c;
+                    String s = new String(chars);
+                    if (set.contains(s)) {
+                        q.offer(new Pair(s, a.step + 1));
+                        set.remove(s); // mark visited
+                    }
+                }
+                chars[i] = old; // revert back for next position
+            }
+        }
+        return -1;
+    }
+
+    public List<Integer> eventualSafeNodes(int[][] graph) {
+        List<List<Integer>> rev = new ArrayList<>();
+        int n = graph.length;
+
+        int[] out = new int[n];
+
+        for (int i = 0; i < n; i++) rev.add(new ArrayList<>());
+
+        for (int i = 0; i < n; i++) {
+            out[i] = graph[i].length;
+            for (int nb : graph[i]) rev.get(nb).add(i);
+        }
+        Queue<Integer> q = new LinkedList<>();
+        for(int i =0; i< n ; i++)if (out[i]==0)q.offer(i); // Add terminals
+        boolean[] safe = new boolean[n];
+        List<Integer> list = new ArrayList<>();
+
+        while(!q.isEmpty()){
+            int nd = q.poll();
+            safe[nd] = true;
+            for(int nb : rev.get(nd)){
+                out[nb]--; // processed degree at nb
+                if(out[nb]==0)q.offer(nb);// new terminal added to q
+            }
+        }
+        for(int i =0; i< n; i++)if(safe[i])list.add(i);
+        return list;
+    }
+
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     public static void main(String[] args) {
         Lcode l = new Lcode();
 
