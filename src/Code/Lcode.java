@@ -8638,9 +8638,144 @@ public class Lcode {
         return list;
     }
 
+    String AccentureEx(String x){
+        // Vowel index array
+        Set<Character>set = Set.of('a', 'e', 'i','o', 'u', 'A', 'E', 'I', 'O', 'U');
+        Set<Character> con = new HashSet<>();
+
+        StringBuilder sb = new StringBuilder();
+        for(char c : x.toCharArray()){ // O(n) time Complexity
+            if (con.contains(c))continue;
+            if (!set.contains(c))con.add(c);
+            sb.append(c);
+        }
+        return sb.toString();
+    }
+    String A2(String x){
+        // THIS IS NOT THE INTEGER VALUE
+        // E:3
+        int[] arr = new int[26];
+        int max = 0;
+        for(char c : x.toCharArray()){
+            if (c =='A' || c=='E' || c=='I' || c=='O' || c=='U'){
+                arr[c-'A']++;
+                max = Math.max(max, arr[c-'A']);
+            }
+        }
+        if (arr['A'-'A']==max)return "A:"+arr['A'-'A'];
+        if (arr['E'-'A']==max)return "E:"+arr['E'-'A'];
+        if (arr['I'-'A']==max)return "I:"+arr['I'-'A'];
+        if (arr['O'-'A']==max)return "O:"+arr['O'-'A'];
+        return "U:"+arr['U'-'A'];
+    }
+
+    public boolean isPossible(int[] nums) {
+        boolean[] bool = new boolean[nums.length];
+        boolean stop = false;
+
+        while(!stop){
+            int last = -1;
+            for(int i =0; i< nums.length; i++){
+                if (!bool[i] && (last == -1 || nums[i]> last)){
+                    bool[i] = true;
+                    last = nums[i];
+                    stop = true;
+                }
+            }
+            stop = !stop; // it was true -> next iterate // else was false means need to out.
+        }
+        for(boolean x : bool)if(!x) return x;
+        return true;
+    }
+
+    static class Employee {
+        public int id;
+        public int importance;
+        public List<Integer> subordinates;
+    };
+
+    public int getImportance(List<Employee> employees, int id) {
+        Map<Integer, Employee>map = new HashMap<>();
+        for(Employee e : employees)map.put(e.id, e);
+        Queue<Employee> q = new LinkedList<>();
+        for(Employee e : employees){
+            if (id == e.id){
+                q.offer(e);
+                break;
+            }
+        }
+        int val = 0;
+
+        while(!q.isEmpty()){
+            Employee e  = q.poll();
+            val+=e.importance;
+            for(int nb : e.subordinates){
+                if ( map.containsKey(nb)){
+                    q.offer(map.get(nb));
+                    map.remove(nb); // Remove for re-compute
+                }
+            }
+        }
+        return val;
+    }
+
+    public List<String> removeInvalidParentheses(String s) {
+        List<String> res = new ArrayList<>();
+        Set<String> visited = new HashSet<>();
+        Queue<String> q = new LinkedList<>();
+
+        q.offer(s);
+        visited.add(s);
+        boolean foundLevel = false; // once we find valid ones, stop generating next levels
+
+        while (!q.isEmpty()) {
+            String cur = q.poll();
+
+            if (isBalanced(cur)) {
+                res.add(cur);
+                foundLevel = true;
+            }
+
+            // Once we found valid strings at this level, don't go deeper
+            if (foundLevel) continue;
+
+            for (int i = 0; i < cur.length(); i++) {
+                char c = cur.charAt(i);
+                if (c != '(' && c != ')') continue;
+
+                // use StringBuilder for efficient char removal
+                StringBuilder sb = new StringBuilder(cur);
+                sb.deleteCharAt(i);
+                String next = sb.toString();
+
+                if (!visited.contains(next)) {
+                    visited.add(next);
+                    q.offer(next);
+                }
+            }
+        }
+
+        return res;
+    }
+
+    private boolean isBalanced(String s) {
+        int count = 0;
+        for (char c : s.toCharArray()) {
+            if (c == '(') count++;
+            else if (c == ')') {
+                if (count == 0) return false;
+                count--;
+            }
+        }
+        return count == 0;
+    }
+
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     public static void main(String[] args) {
         Lcode l = new Lcode();
+        System.out.println(l.A2("THIS IS NOT AN INTEGER VALUE"));
+//        System.out.println(l.AccentureEx("programming"));
+//        System.out.println("Expected : progamin");
 
 //        System.out.println(l.strongPasswordChecker("bbaaaaaaaaaaaaaaacccccc"));
 //        l.r_p_s_game();
