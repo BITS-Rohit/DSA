@@ -8242,34 +8242,34 @@ public class Lcode {
         Stack<Integer> s1 = new Stack<>();
         Stack<Integer> s2 = new Stack<>();
 
-        for(int x : nums1){
-            while(!s1.isEmpty() && s1.peek()< x)s1.pop();
+        for (int x : nums1) {
+            while (!s1.isEmpty() && s1.peek() < x) s1.pop();
             s1.push(x);
         }
 
-        for(int x : nums2){
-            while(!s2.isEmpty() && s2.peek()< x)s2.pop();
+        for (int x : nums2) {
+            while (!s2.isEmpty() && s2.peek() < x) s2.pop();
             s2.push(x);
         }
 
         int[] a = new int[s1.size()];
         int[] b = new int[s2.size()];
-        int j = s1.size()-1;
+        int j = s1.size() - 1;
 
-        while(!s1.isEmpty())a[j--]= s1.pop();
-        j=s2.size()-1;
-        while(!s2.isEmpty())b[j--]= s2.pop();
+        while (!s1.isEmpty()) a[j--] = s1.pop();
+        j = s2.size() - 1;
+        while (!s2.isEmpty()) b[j--] = s2.pop();
 
-        int x = 0 , y = 0;
-        j=0;
+        int x = 0, y = 0;
+        j = 0;
         // Greedily now match nums
-        while(x < a.length && y < b.length){
-            if (a[x] > b[y]) ans[j++]= a[x++];
+        while (x < a.length && y < b.length) {
+            if (a[x] > b[y]) ans[j++] = a[x++];
             else ans[j++] = b[y++];
         }
 
-        while(x<a.length)ans[j++]= a[x++];
-        while(y<b.length)ans[j++]= b[y++];
+        while (x < a.length) ans[j++] = a[x++];
+        while (y < b.length) ans[j++] = b[y++];
 
         return ans;
     }
@@ -8535,7 +8535,7 @@ public class Lcode {
 
     public List<Integer> findMinHeightTrees(int n, int[][] edges) {
         List<Integer> l = new ArrayList<>();
-        if (n==1){
+        if (n == 1) {
             l.add(0);
             return l;
         }
@@ -8550,7 +8550,7 @@ public class Lcode {
             degree[v]++;
         }
         Queue<Integer> queue = new LinkedList<>();
-        for (int i = 0; i < degree.length; i++) if (degree[i]==1)queue.offer(i);
+        for (int i = 0; i < degree.length; i++) if (degree[i] == 1) queue.offer(i);
 
         while (n > 2) {
             int size = queue.size();
@@ -8570,6 +8570,7 @@ public class Lcode {
     static class Pair {
         String s;
         int step;
+
         Pair(String s, int step) {
             this.s = s;
             this.step = step;
@@ -8622,61 +8623,62 @@ public class Lcode {
             for (int nb : graph[i]) rev.get(nb).add(i);
         }
         Queue<Integer> q = new LinkedList<>();
-        for(int i =0; i< n ; i++)if (out[i]==0)q.offer(i); // Add terminals
+        for (int i = 0; i < n; i++) if (out[i] == 0) q.offer(i); // Add terminals
         boolean[] safe = new boolean[n];
         List<Integer> list = new ArrayList<>();
 
-        while(!q.isEmpty()){
+        while (!q.isEmpty()) {
             int nd = q.poll();
             safe[nd] = true;
-            for(int nb : rev.get(nd)){
+            for (int nb : rev.get(nd)) {
                 out[nb]--; // processed degree at nb
-                if(out[nb]==0)q.offer(nb);// new terminal added to q
+                if (out[nb] == 0) q.offer(nb);// new terminal added to q
             }
         }
-        for(int i =0; i< n; i++)if(safe[i])list.add(i);
+        for (int i = 0; i < n; i++) if (safe[i]) list.add(i);
         return list;
     }
 
-    String AccentureEx(String x){
+    String AccentureEx(String x) {
         // Vowel index array
-        Set<Character>set = Set.of('a', 'e', 'i','o', 'u', 'A', 'E', 'I', 'O', 'U');
+        Set<Character> set = Set.of('a', 'e', 'i', 'o', 'u', 'A', 'E', 'I', 'O', 'U');
         Set<Character> con = new HashSet<>();
 
         StringBuilder sb = new StringBuilder();
-        for(char c : x.toCharArray()){ // O(n) time Complexity
-            if (con.contains(c))continue;
-            if (!set.contains(c))con.add(c);
+        for (char c : x.toCharArray()) { // O(n) time Complexity
+            if (con.contains(c)) continue;
+            if (!set.contains(c)) con.add(c);
             sb.append(c);
         }
         return sb.toString();
     }
-    String A2(String x){
+
+    String A2(String x) {
         // THIS IS NOT THE INTEGER VALUE
         // E:3
         int[] arr = new int[26];
         int max = 0;
-        for(char c : x.toCharArray()){
-            if (c =='A' || c=='E' || c=='I' || c=='O' || c=='U'){
-                arr[c-'A']++;
-                max = Math.max(max, arr[c-'A']);
+        for (char c : x.toCharArray()) {
+            if (c == 'A' || c == 'E' || c == 'I' || c == 'O' || c == 'U') {
+                arr[c - 'A']++;
+                max = Math.max(max, arr[c - 'A']);
             }
         }
-        if (arr['A'-'A']==max)return "A:"+arr['A'-'A'];
-        if (arr['E'-'A']==max)return "E:"+arr['E'-'A'];
-        if (arr['I'-'A']==max)return "I:"+arr['I'-'A'];
-        if (arr['O'-'A']==max)return "O:"+arr['O'-'A'];
-        return "U:"+arr['U'-'A'];
+        if (arr['A' - 'A'] == max) return "A:" + arr['A' - 'A'];
+        if (arr['E' - 'A'] == max) return "E:" + arr['E' - 'A'];
+        if (arr['I' - 'A'] == max) return "I:" + arr['I' - 'A'];
+        if (arr['O' - 'A'] == max) return "O:" + arr['O' - 'A'];
+        return "U:" + arr['U' - 'A'];
     }
 
     public boolean isPossible(int[] nums) {
         boolean[] bool = new boolean[nums.length];
         boolean stop = false;
 
-        while(!stop){
+        while (!stop) {
             int last = -1;
-            for(int i =0; i< nums.length; i++){
-                if (!bool[i] && (last == -1 || nums[i]> last)){
+            for (int i = 0; i < nums.length; i++) {
+                if (!bool[i] && (last == -1 || nums[i] > last)) {
                     bool[i] = true;
                     last = nums[i];
                     stop = true;
@@ -8684,7 +8686,7 @@ public class Lcode {
             }
             stop = !stop; // it was true -> next iterate // else was false means need to out.
         }
-        for(boolean x : bool)if(!x) return x;
+        for (boolean x : bool) if (!x) return false;
         return true;
     }
 
@@ -8692,25 +8694,26 @@ public class Lcode {
         public int id;
         public int importance;
         public List<Integer> subordinates;
-    };
+    }
+
 
     public int getImportance(List<Employee> employees, int id) {
-        Map<Integer, Employee>map = new HashMap<>();
-        for(Employee e : employees)map.put(e.id, e);
+        Map<Integer, Employee> map = new HashMap<>();
+        for (Employee e : employees) map.put(e.id, e);
         Queue<Employee> q = new LinkedList<>();
-        for(Employee e : employees){
-            if (id == e.id){
+        for (Employee e : employees) {
+            if (id == e.id) {
                 q.offer(e);
                 break;
             }
         }
         int val = 0;
 
-        while(!q.isEmpty()){
-            Employee e  = q.poll();
-            val+=e.importance;
-            for(int nb : e.subordinates){
-                if ( map.containsKey(nb)){
+        while (!q.isEmpty()) {
+            Employee e = q.poll();
+            val += e.importance;
+            for (int nb : e.subordinates) {
+                if (map.containsKey(nb)) {
                     q.offer(map.get(nb));
                     map.remove(nb); // Remove for re-compute
                 }
@@ -8770,7 +8773,65 @@ public class Lcode {
         return count == 0;
     }
 
-    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    public int trapRainWater(int[][] heightMap) {
+        int m = heightMap.length, n = heightMap[0].length;
+        if (m <= 2 || n <= 2) return 0; // No water can be trapped on small grid
+
+        PriorityQueue<int[]> pq = new PriorityQueue<>(Comparator.comparingInt(a -> a[0]));
+        boolean[][] vis = new boolean[m][n];
+
+        for (int i = 0; i < m; i++) {
+            pq.offer(new int[]{heightMap[i][0], i, 0});
+            pq.offer(new int[]{heightMap[i][n - 1], i, n - 1});
+            vis[i][0] = vis[i][n - 1] = true;
+        }
+        for (int j = 1; j < n - 1; j++) {
+            pq.offer(new int[]{heightMap[0][j], 0, j});
+            pq.offer(new int[]{heightMap[m - 1][j], m - 1, j});
+            vis[0][j] = vis[m - 1][j] = true;
+        }
+
+        int[][] dirs = {{1, 0}, {-1, 0}, {0, 1}, {0, -1}};
+        int water = 0;
+
+        while (!pq.isEmpty()) {
+            int[] cell = pq.poll();
+            int h = cell[0], i = cell[1], j = cell[2];
+
+            for (int[] d : dirs) {
+                int ni = i + d[0], nj = j + d[1];
+                if (ni < 0 || nj < 0 || ni >= m || nj >= n || vis[ni][nj]) continue;
+                vis[ni][nj] = true;
+                water += Math.max(0, h - heightMap[ni][nj]);
+                pq.offer(new int[]{Math.max(h, heightMap[ni][nj]), ni, nj});
+            }
+        }
+
+        return water;
+    }
+
+    public int maxProduct(String[] words) {
+        // lets brute force it first
+        int max = 0;
+        for (int i = 0; i < words.length; i++) {
+            for (int j = i + 1; j < words.length; j++) {
+                if (diff(words[i], words[j]))
+                    max = Math.max(max, words[i].length() + words[j].length());
+            }
+        }
+        return max;
+    }
+
+    boolean diff(String a, String b) {
+        int[] arr = new int[26];
+        for (char c : a.toCharArray()) arr[c - 'a']++;
+        for (char c : b.toCharArray()) if (arr[c - 'a'] > 0) return false;
+        return true;
+    }
+
+
+
+    /// /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     public static void main(String[] args) {
         Lcode l = new Lcode();
         System.out.println(l.A2("THIS IS NOT AN INTEGER VALUE"));
@@ -9554,4 +9615,21 @@ class FrequencyTracker {
     }
 }
 
+class KthLargest {
+    private PriorityQueue<Integer> pq;
+    private int k;
 
+    public KthLargest(int k, int[] nums) {
+        this.k = k;
+        pq = new PriorityQueue<>(); // min-heap
+        for (int n : nums) {
+            pq.offer(n);
+        }
+    }
+
+    public int add(int val) {
+        pq.offer(val);
+        while (pq.size() > k) pq.poll();
+        return pq.peek(); // kth largest
+    }
+}
