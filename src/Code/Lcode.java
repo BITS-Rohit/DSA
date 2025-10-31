@@ -8829,12 +8829,30 @@ public class Lcode {
         return true;
     }
 
+    public int[] getSneakyNumbers(int[] nums) {
+        int[] arr = new int[105];
+        int[] ans = new int[2];
+        ans[0]=-1;
+        ans[1]=-1;
 
+        for(int x : nums){
+            if(arr[x]>0){
+                if (ans[0]>-1){
+                    ans[1]=x;
+                    return ans;
+                }
+                else ans[0] = x;
+            }
+            arr[x]++;
+        }
+        return new int[2];
+    }
 
     /// /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     public static void main(String[] args) {
         Lcode l = new Lcode();
-        System.out.println(l.A2("THIS IS NOT AN INTEGER VALUE"));
+        System.out.println(Arrays.toString(l.getSneakyNumbers(new int[]{0, 1, 0, 1})));
+//        System.out.println(l.A2("THIS IS NOT AN INTEGER VALUE"));
 //        System.out.println(l.AccentureEx("programming"));
 //        System.out.println("Expected : progamin");
 
