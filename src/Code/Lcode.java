@@ -8832,26 +8832,38 @@ public class Lcode {
     public int[] getSneakyNumbers(int[] nums) {
         int[] arr = new int[105];
         int[] ans = new int[2];
-        ans[0]=-1;
-        ans[1]=-1;
+        ans[0] = -1;
+        ans[1] = -1;
 
-        for(int x : nums){
-            if(arr[x]>0){
-                if (ans[0]>-1){
-                    ans[1]=x;
+        for (int x : nums) {
+            if (arr[x] > 0) {
+                if (ans[0] > -1) {
+                    ans[1] = x;
                     return ans;
-                }
-                else ans[0] = x;
+                } else ans[0] = x;
             }
             arr[x]++;
         }
         return new int[2];
     }
 
+    public boolean hasSameDigits(String x) {
+        int n = x.length();
+        int[] digits = new int[n];
+
+        for (int i = 0; i < n; i++) digits[i] = x.charAt(i) - '0';
+        while (n > 2) {
+            for (int i = 0; i < n - 1; i++) digits[i] = (digits[i] + digits[i + 1]) % 10;
+            n--;
+        }
+        return digits[0] == digits[1];
+    }
+
     /// /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     public static void main(String[] args) {
         Lcode l = new Lcode();
-        System.out.println(Arrays.toString(l.getSneakyNumbers(new int[]{0, 1, 0, 1})));
+
+//        System.out.println(Arrays.toString(l.getSneakyNumbers(new int[]{0, 1, 0, 1})));
 //        System.out.println(l.A2("THIS IS NOT AN INTEGER VALUE"));
 //        System.out.println(l.AccentureEx("programming"));
 //        System.out.println("Expected : progamin");
