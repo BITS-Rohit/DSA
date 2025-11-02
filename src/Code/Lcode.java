@@ -8859,9 +8859,166 @@ public class Lcode {
         return digits[0] == digits[1];
     }
 
+    public int maxFrequency(int[] nums, int k, int numOperations) {
+        Map<Integer, Integer> map = new HashMap<>();
+        int max = 0;
+        for (int x : nums)
+            for (int i = -k; i <= k; i++) {
+                map.put(i, map.getOrDefault(i, 0) + 1);
+                max = Math.max(max, map.get(i));
+            }
+        System.out.println(map);
+        return max;
+    }
+
+    static class lock {
+        String s;
+        int step;
+
+        lock(String s, int step) {
+            this.s = s;
+            this.step = step;
+        }
+    }
+
+    public int openLock(String[] deadends, String target) {
+        Set<String> set = new HashSet<>();
+        Collections.addAll(set, deadends);
+        Queue<lock> q = new LinkedList<>();
+        q.offer(new lock("0000", 0)); // initial
+
+        if (set.contains("0000")) return -1;
+        else set.add("0000");
+
+        while (!q.isEmpty()) {
+            lock curr = q.poll();
+
+            if (curr.s.equals(target)) return curr.step;
+
+            // generate all possible next states
+            for (int i = 0; i < 4; i++) {
+                char[] chars = curr.s.toCharArray();
+                char c = chars[i];
+
+                chars[i] = (char) ((c - '0' + 1) % 10 + '0');
+                String up = new String(chars);
+
+                chars[i] = (char) ((c - '0' + 9) % 10 + '0');
+                String down = new String(chars);
+
+                if (!set.contains(up)) {
+                    set.add(up);
+                    q.offer(new lock(up, curr.step + 1));
+                }
+                if (!set.contains(down)) {
+                    set.add(down);
+                    q.offer(new lock(down, curr.step + 1));
+                }
+            }
+        }
+        return -1;
+    }
+
+    static class KeyNode {
+        int i;
+        int j;
+        int step;
+        Set<Character> foundKeys;
+
+        KeyNode(int i, int j, int step) {
+            this.i = i;
+            this.j = j;
+            this.step = step;
+            this.foundKeys = new HashSet<>();
+        }
+    }
+
+    public int shortestPathAllKeys(String[] grid) {
+        int m = grid.length;
+        int n = grid[0].length();
+
+        int keys = 0; // calculate presemt keys
+        int si = 0, sj = 0; // Starting point coodinates
+
+        for (int i = 0; i < m; i++) {        // O(n^2)
+            for (int j = 0; j < n; j++) {
+                char cell = grid[i].charAt(j);
+                if (cell - 'a' >= 0 && cell - 'a' < 26) {
+                    keys++;
+                    System.out.println("Key is : " + cell);
+                }
+                if (cell == '@') {
+                    si = i;
+                    sj = j;
+                }
+            }
+        }
+        // i will be grid[i] and j will be denoting the gird string j
+        // for shortest path , using bfs is best, Tho dfs can also be worked here
+        boolean[][] vis = new boolean[m][n];
+        Queue<KeyNode> q = new LinkedList<>();
+
+        q.offer(new KeyNode(si, sj, 0)); // i , j , steps -> single 3 constant array
+        vis[si][sj] = true;
+
+        int[][] dirs = {{1, 0}, {-1, 0}, {0, 1}, {0, -1}};
+
+        while (!q.isEmpty()) {
+            KeyNode x = q.poll();
+            char cell = grid[x.i].charAt(x.j);
+
+            if (cell - 'a' >= 0 && cell - 'a' < 26 && !x.foundKeys.contains(Character.toUpperCase(cell))) { // FoundKey
+                keys--;
+                x.foundKeys.add(Character.toUpperCase(cell));
+            } else if (cell - 'A' >= 0 && cell - 'A' < 26 && !x.foundKeys.contains(cell)) continue; // found Lock
+
+            if (keys == 0) return x.step + 1;// found answer
+
+            for (int[] dir : dirs) {
+                int i = x.i + dir[0], j = x.j + dir[1];
+                if (i >= 0 && j >= 0 && i < m && j < n && !vis[i][j] && grid[i].charAt(j) != '#') {
+                    vis[i][j] = true;
+                    q.offer(new KeyNode(i, j, x.step + 1));
+                }
+            }
+        }
+        return -1;
+    }
+
+    public int countUnguarded(int m, int n, int[][] guards, int[][] walls) {
+        int[][] grid = new int[m][n];
+        // -1 = wall, 2 = guard, 1 = watched, 0 = empty
+
+        for (int[] w : walls) grid[w[0]][w[1]] = -1;
+        for (int[] g : guards) grid[g[0]][g[1]] = 2;
+
+        // Directions: up, down, left, right
+        int[][] dirs = {{-1, 0}, {1, 0}, {0, -1}, {0, 1}};
+        for (int[] g : guards) {
+            for (int[] d : dirs) {
+                int r = g[0] + d[0];
+                int c = g[1] + d[1];
+                while (r >= 0 && c >= 0 && r < m && c < n && grid[r][c] != -1 && grid[r][c] != 2) {
+                    if (grid[r][c] == 0) grid[r][c] = 1; // mark watched
+                    r += d[0];
+                    c += d[1];
+                }
+            }
+        }
+
+        // Count unguarded empty cells
+        int count = 0;
+        for (int i = 0; i < m; i++)
+            for (int j = 0; j < n; j++)
+                if (grid[i][j] == 0) count++;
+
+        return count;
+    }
+
     /// /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     public static void main(String[] args) {
         Lcode l = new Lcode();
+        System.out.println((char) (2 + '1'));
 
 //        System.out.println(Arrays.toString(l.getSneakyNumbers(new int[]{0, 1, 0, 1})));
 //        System.out.println(l.A2("THIS IS NOT AN INTEGER VALUE"));
@@ -9646,8 +9803,8 @@ class FrequencyTracker {
 }
 
 class KthLargest {
-    private PriorityQueue<Integer> pq;
-    private int k;
+    private final PriorityQueue<Integer> pq;
+    private final int k;
 
     public KthLargest(int k, int[] nums) {
         this.k = k;
