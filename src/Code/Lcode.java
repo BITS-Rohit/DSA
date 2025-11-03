@@ -8922,14 +8922,13 @@ public class Lcode {
     static class KeyNode {
         int i;
         int j;
-        int step;
-        Set<Character> foundKeys;
-
-        KeyNode(int i, int j, int step) {
+        int steps;
+        int keys; // bitmask
+        KeyNode(int i, int j, int step, int mask) {
             this.i = i;
             this.j = j;
-            this.step = step;
-            this.foundKeys = new HashSet<>();
+            this.steps = step;
+            this.keys = mask;
         }
     }
 
@@ -8937,53 +8936,54 @@ public class Lcode {
         int m = grid.length;
         int n = grid[0].length();
 
-        int keys = 0; // calculate presemt keys
-        int si = 0, sj = 0; // Starting point coodinates
+        int totalKeys = 0;
+        int si = 0, sj = 0;
 
-        for (int i = 0; i < m; i++) {        // O(n^2)
+        for (int i = 0; i < m; i++) {
             for (int j = 0; j < n; j++) {
-                char cell = grid[i].charAt(j);
-                if (cell - 'a' >= 0 && cell - 'a' < 26) {
-                    keys++;
-                    System.out.println("Key is : " + cell);
-                }
-                if (cell == '@') {
+                char c = grid[i].charAt(j);
+                if (c >= 'a' && c <= 'f') totalKeys++;
+                if (c == '@') {
                     si = i;
                     sj = j;
                 }
             }
         }
-        // i will be grid[i] and j will be denoting the gird string j
-        // for shortest path , using bfs is best, Tho dfs can also be worked here
-        boolean[][] vis = new boolean[m][n];
+
+        int allKeysMask = (1 << totalKeys) - 1;
+
         Queue<KeyNode> q = new LinkedList<>();
+        boolean[][][] vis = new boolean[m][n][64];
+        q.offer(new KeyNode(si, sj, 0, 0));
+        vis[si][sj][0] = true;
 
-        q.offer(new KeyNode(si, sj, 0)); // i , j , steps -> single 3 constant array
-        vis[si][sj] = true;
-
-        int[][] dirs = {{1, 0}, {-1, 0}, {0, 1}, {0, -1}};
+        int[][] dirs = {{1,0},{-1,0},{0,1},{0,-1}};
 
         while (!q.isEmpty()) {
-            KeyNode x = q.poll();
-            char cell = grid[x.i].charAt(x.j);
+            KeyNode s = q.poll();
 
-            if (cell - 'a' >= 0 && cell - 'a' < 26 && !x.foundKeys.contains(Character.toUpperCase(cell))) { // FoundKey
-                keys--;
-                x.foundKeys.add(Character.toUpperCase(cell));
-            } else if (cell - 'A' >= 0 && cell - 'A' < 26 && !x.foundKeys.contains(cell)) continue; // found Lock
+            if (s.keys == allKeysMask) return s.steps;
 
-            if (keys == 0) return x.step + 1;// found answer
+            for (int[] d : dirs) {
+                int ni = s.i + d[0], nj = s.j + d[1];
+                if (ni < 0 || nj < 0 || ni >= m || nj >= n) continue;
 
-            for (int[] dir : dirs) {
-                int i = x.i + dir[0], j = x.j + dir[1];
-                if (i >= 0 && j >= 0 && i < m && j < n && !vis[i][j] && grid[i].charAt(j) != '#') {
-                    vis[i][j] = true;
-                    q.offer(new KeyNode(i, j, x.step + 1));
+                char cell = grid[ni].charAt(nj);
+                if (cell == '#') continue;
+
+                int newKeys = s.keys;
+                if (cell >= 'a' && cell <= 'f') newKeys |= (1 << (cell - 'a')); // add key
+                if (cell >= 'A' && cell <= 'F' && (s.keys & (1 << (cell - 'A'))) == 0) continue; // back if missing key
+
+                if (!vis[ni][nj][newKeys]) {
+                    vis[ni][nj][newKeys] = true;
+                    q.offer(new KeyNode(ni, nj, s.steps + 1, newKeys));
                 }
             }
         }
         return -1;
     }
+
 
     public int countUnguarded(int m, int n, int[][] guards, int[][] walls) {
         int[][] grid = new int[m][n];
@@ -9014,6 +9014,8 @@ public class Lcode {
 
         return count;
     }
+
+
 
     /// /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     public static void main(String[] args) {
