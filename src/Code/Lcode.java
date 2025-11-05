@@ -8924,6 +8924,7 @@ public class Lcode {
         int j;
         int steps;
         int keys; // bitmask
+
         KeyNode(int i, int j, int step, int mask) {
             this.i = i;
             this.j = j;
@@ -8957,7 +8958,7 @@ public class Lcode {
         q.offer(new KeyNode(si, sj, 0, 0));
         vis[si][sj][0] = true;
 
-        int[][] dirs = {{1,0},{-1,0},{0,1},{0,-1}};
+        int[][] dirs = {{1, 0}, {-1, 0}, {0, 1}, {0, -1}};
 
         while (!q.isEmpty()) {
             KeyNode s = q.poll();
@@ -9015,7 +9016,182 @@ public class Lcode {
         return count;
     }
 
+    static class wrapper {
+        int idx;
+        int mask;
+        int step;
 
+        wrapper(int idx, int mask, int step) {
+            this.idx = idx;
+            this.mask = mask;
+            this.step = step;
+        }
+    }
+
+    public int shortestPathLength(int[][] graph) {
+        int tmask = (1 << graph.length) - 1; // 1<<n makes n length bit mask , and -1 makes the o based to be flipped to 1111
+        Queue<wrapper> q = new LinkedList<>();
+        boolean[][] vis = new boolean[graph.length][1 << graph.length];
+
+        for (int i = 0; i < graph.length; i++) {
+            q.offer(new wrapper(i, 1 << i, 0)); // all points start
+            vis[i][1 << i] = true;
+        }
+
+        while (!q.isEmpty()) {
+            wrapper x = q.poll();
+            if (x.mask == tmask) return x.step;
+
+            for (int nb : graph[x.idx]) {
+                int newMask = x.mask | (1 << nb);
+                if (vis[nb][newMask]) continue;
+
+                vis[nb][newMask] = true;
+                q.offer(new wrapper(nb, newMask, x.step + 1));
+            }
+        }
+        return -1;
+    }
+
+    public boolean canVisitAllRooms(List<List<Integer>> rooms) {
+        int n = rooms.size();
+        Queue<Integer> q = new LinkedList<>();
+        boolean[] vis = new boolean[n];
+
+        q.offer(0);
+        vis[0] = true;
+
+        while (!q.isEmpty()) {
+            int x = q.poll();
+            for (int nb : rooms.get(x)) {
+                if (!vis[nb]) {
+                    vis[nb] = true;
+                    q.offer(nb);
+                }
+            }
+        }
+        for (boolean v : vis) if (!v) return false;
+        return true;
+    }
+
+    public int snakesAndLadders(int[][] board) {
+        int n = board.length;
+        int target = n * n;
+
+        // Flatten the board into 1D
+        int[] arr = new int[target + 1];
+        int idx = 1;
+        boolean leftToRight = true;
+        for (int r = n - 1; r >= 0; r--) {
+            if (leftToRight) for (int c = 0; c < n; c++) arr[idx++] = board[r][c];
+            else for (int c = n - 1; c >= 0; c--) arr[idx++] = board[r][c];
+            leftToRight = !leftToRight;
+        }
+
+        Queue<Integer> q = new LinkedList<>();
+        boolean[] visited = new boolean[target + 1];
+        q.offer(1);
+        visited[1] = true;
+        int steps = 0;
+
+        while (!q.isEmpty()) {
+            int size = q.size();
+            for (int s = 0; s < size; s++) {
+                int cur = q.poll();
+                if (cur == target) return steps;
+
+                for (int die = 1; die <= 6 && cur + die <= target; die++) {
+                    int next = cur + die;
+                    if (arr[next] != -1) next = arr[next]; // jump once
+                    if (!visited[next]) {
+                        visited[next] = true;
+                        q.offer(next);
+                    }
+                }
+            }
+            steps++;
+        }
+        return -1;
+    }
+
+    private static class RC implements Comparable<RC> {
+        int val;
+        int cnt;
+
+        RC(int v, int c) {
+            val = v;
+            cnt = c;
+        }
+
+        public int compareTo(RC o) {
+            if (cnt != o.cnt) {
+                return cnt - o.cnt;
+            }
+            return val - o.val;
+        }
+    }
+
+    public long[] findXSum(int[] nums, int k, int x) {
+        int n = nums.length;
+        long[] ans = new long[n - k + 1];
+        Map<Integer, Integer> cnt = new HashMap<>();
+        TreeSet<RC> s1 = new TreeSet<>();
+        TreeSet<RC> s2 = new TreeSet<>();
+        long sum = 0;
+        long xSum = 0;
+        for (int i = 0; i < n; ++i) {
+            sum += nums[i];
+            int curCnt = cnt.getOrDefault(nums[i], 0);
+            cnt.put(nums[i], curCnt + 1);
+            RC tmp = new RC(nums[i], curCnt);
+            if (s1.contains(tmp)) {
+                s1.remove(tmp);
+                s1.add(new RC(nums[i], curCnt + 1));
+                xSum += nums[i];
+            } else {
+                s2.remove(tmp);
+                s1.add(new RC(nums[i], curCnt + 1));
+                xSum += (long) nums[i] * (curCnt + 1);
+                while (s1.size() > x) {
+                    RC l = s1.first();
+                    s1.remove(l);
+                    xSum -= (long) l.val * l.cnt;
+                    s2.add(l);
+                }
+            }
+            if (i >= k - 1) {
+                ans[i - k + 1] = s1.size() == x ? xSum : sum;
+                int v = nums[i - k + 1];
+                sum -= v;
+                curCnt = cnt.get(v);
+                if (curCnt > 1) {
+                    cnt.put(v, curCnt - 1);
+                } else {
+                    cnt.remove(v);
+                }
+                tmp = new RC(v, curCnt);
+                if (s2.contains(tmp)) {
+                    s2.remove(tmp);
+                    if (curCnt > 1) {
+                        s2.add(new RC(v, curCnt - 1));
+                    }
+                } else {
+                    s1.remove(tmp);
+                    xSum -= (long) v * curCnt;
+                    if (curCnt > 1) {
+                        s2.add(new RC(v, curCnt - 1));
+                    }
+                    while (s1.size() < x && !s2.isEmpty()) {
+                        RC r = s2.last();
+                        s2.remove(r);
+                        s1.add(r);
+                        xSum += (long) r.val * r.cnt;
+                    }
+                }
+            }
+        }
+        return ans;
+    }
 
     /// /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     public static void main(String[] args) {
