@@ -7431,57 +7431,29 @@ public class Lcode {
 
 
     public int maxCoins(int[] nums) {
-        int[] dp = new int[nums.length];
-        // Constraint dependent on i so single DP
-        return rec(nums, 0, dp, new HashSet<>());
+        int n = nums.length;
+        int[] arr = new int[n + 2]; // padded array
+        arr[0] = 1;
+        arr[n + 1] = 1;
+        System.arraycopy(nums, 0, arr, 1, n);
+        int[][] dp = new int[n + 2][n + 2]; // depends on left & right -> Interval DP
+        return CoinRec(arr, 0, n + 1, dp);
     }
 
-    int rec(int[] n, int i, int[] dp, Set<Integer> set) {
-        if (i == n.length) { // reached to end
-            return 0;
+    int CoinRec(int[] arr, int left, int right, int[][] dp) {
+        if (right - left - 1 == 0) return 0;
+
+        if (dp[left][right] != 0) return dp[left][right];
+        int max = 0;
+        for (int i = left + 1; i < right; i++) {
+            int coins = arr[left] * arr[i] * arr[right];
+            coins += CoinRec(arr, left, i, dp);
+            coins += CoinRec(arr, i, right, dp);
+            max = Math.max(max, coins);
         }
-        // Compute via calls answering
-        if (dp[i] != 0) return dp[i];
-
-        int npick = rec(n, i + 1, dp, set);
-        set.add(i);
-        int pick = getCoins(n, i, set) + rec(n, i + 1, dp, set);
-        set.remove(i);
-        return dp[i] = Math.max(npick, pick);
+        return dp[left][right] = max;
     }
 
-    int getCoins(int[] n, int i, Set<Integer> set) {
-        if (n[i] == 0) return 0;
-
-        int left = -1, right = -1;
-        int x = i - 1, y = i + 1;
-
-        while (left == -1 || right == -1) {
-            // Find left neighbor
-            if (left == -1) {
-                if (x >= 0 && !set.contains(x)) {
-                    left = n[x];
-                } else if (x < 0) {
-                    left = 1;
-                } else {
-                    x--;
-                }
-            }
-
-            // Find right neighbor
-            if (right == -1) {
-                if (y < n.length && !set.contains(y)) {
-                    right = n[y];
-                } else if (y >= n.length) {
-                    right = 1;
-                } else {
-                    y++;
-                }
-            }
-        }
-
-        return left * n[i] * right;
-    }
 
     public int nthSuperUglyNumber(int n, int[] primes) {
         int k = primes.length;
@@ -7578,30 +7550,32 @@ public class Lcode {
     }
 
     List<Integer> mlist;
-
     public List<Integer> largestDivisibleSubset(int[] nums) {
         Arrays.sort(nums);
-        // dp , as we need to explore all paths via skip or take
-        // Longest subset pair , it comes frmo child substructure , hence Optimal Substructure
-        mlist = new ArrayList<>();
-        List<Integer> l = new ArrayList<>();
-        l.add(nums[0]);
-        recl(nums, 1, new ArrayList<>());
+        mlist  = new ArrayList<>();
+
+        recl(nums, 0, new ArrayList<>());
         return mlist;
     }
 
     void recl(int[] nums, int i, List<Integer> l) {
         if (i == nums.length) {
-            if (l.size() > mlist.size()) mlist = l;
+            if (l.size() > mlist.size()) mlist = new ArrayList<>(l);
             return;
         }
 
         recl(nums, i + 1, l);
-        if (l.get(0) % nums[i] == 0 || nums[i] % l.get(0) == 0) {
+        int last = l.isEmpty() ? -1 : l.get(l.size()-1);
+
+        if(last ==-1 || nums[i] %last ==0 || last %nums[i]==0){
             l.add(nums[i]);
-            recl(nums, i + 1, l);
-        } else {
-            List<Integer> nl = new ArrayList<>();
+            recl(nums, i+1 , l );
+        }
+        else {
+            // skip current ele
+            recl(nums, i+1 , l );
+            // new list start
+            List<Integer> nl =new ArrayList<>();
             nl.add(nums[i]);
             recl(nums, i + 1, nl);
         }
@@ -9191,6 +9165,45 @@ public class Lcode {
             }
         }
         return ans;
+    }
+
+    public int countNumbersWithUniqueDigits(int n) {
+        if (n == 0) return 1;
+
+        int num = (int) Math.pow(10, n) - 1;
+        String s = String.valueOf(num);
+        int[] arr = new int[s.length()];
+        for (int i = 0; i < s.length(); i++) arr[i] = s.charAt(i) - '0';
+
+        // dp[pos][mask][tight][start]
+        int[][][][] dp = new int[arr.length + 1][1 << 10][2][2];
+        for (int[][][] a : dp)
+            for (int[][] b : a)
+                for (int[] c : b)
+                    Arrays.fill(c, -1);
+
+        return digitDP(arr, 0, 0, 1, 0, dp);
+    }
+
+    int digitDP(int[] arr, int pos, int mask, int tight, int start, int[][][][] dp) {
+        if (pos == arr.length) return 1;
+        if (dp[pos][mask][tight][start] != -1) return dp[pos][mask][tight][start];
+
+        int limit = tight == 1 ? arr[pos] : 9;
+        int ans = 0;
+
+        for (int i = 0; i <= limit; i++) {
+            // skip if this digit already used
+            if (start == 1 && ((mask >> i) & 1) == 1) continue;
+
+            int newtight = (tight == 1 && i == limit) ? 1 : 0;
+            int newstart = (start == 1 || i != 0) ? 1 : 0;
+            int newmask = (newstart == 1) ? (mask | (1 << i)) : mask;
+
+            ans += digitDP(arr, pos + 1, newmask, newtight, newstart, dp);
+        }
+
+        return dp[pos][mask][tight][start] = ans;
     }
 
     /// /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
