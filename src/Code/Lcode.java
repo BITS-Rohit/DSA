@@ -9209,7 +9209,8 @@ public class Lcode {
     /// /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     public static void main(String[] args) {
         Lcode l = new Lcode();
-        System.out.println((char) (2 + '1'));
+        System.out.println(1<<20);
+//        System.out.println((char) (2 + '1'));
 
 //        System.out.println(Arrays.toString(l.getSneakyNumbers(new int[]{0, 1, 0, 1})));
 //        System.out.println(l.A2("THIS IS NOT AN INTEGER VALUE"));
