@@ -7681,19 +7681,6 @@ public class Lcode {
         return ans;
     }
 
-    public boolean canIWin(int mi, int t) {
-        if (t <= mi) return true;
-        else return rec(mi, t, 0, 0);
-    }
-    // p1 = 4 + 2 = 6 [.] true , wins
-    // p2 = 3 [x]
-
-    boolean rec(int mi, int t, int p1, int p2) {
-        if (mi < 0) return false;
-        if (mi + p1 >= t) return true;
-        else if (mi + p2 >= t) return false;
-        else return rec(mi - 2, t, p1 + mi, p2 + mi - 1);
-    }
 
     public long countNoZeroPairs(long n) {
         String s = String.valueOf(n);
@@ -9206,6 +9193,40 @@ public class Lcode {
         return dp[pos][mask][tight][start] = ans;
     }
 
+    public boolean canIWin(int n, int dt) {
+        int total = (n * (n + 1)) / 2;
+        if (total < dt) return false;
+        if (dt <= 0) return true;
+
+        Map<Integer, Boolean> dp = new HashMap<>();
+        // we need BitMask for every state
+        // to know which num is picked or not in previous ones
+        // For next states that depend on previous picks
+        // -> called State Transition DP
+
+        // Map-based DP for storing mask
+        return recBit(dp, n, dt, 0);
+    }
+
+    boolean recBit(Map<Integer, Boolean> dp, int n, int dt, int mask) {
+        if (dt <= 0) return false;
+        if (dp.containsKey(mask)) return dp.get(mask);
+
+        for (int i = 1; i <= n; i++) {
+            int bit = 1 << (i - 1);
+            if ((mask & bit) != 0) continue;
+
+            // If picking i wins immediately OR forces opponent to lose
+            if (i >= dt || !recBit(dp, n, dt - i, mask | bit)) {
+                dp.put(mask, true);
+                return true;
+            }
+        }
+        dp.put(mask, false);
+        return false;
+    }
+
+
     /// /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     public static void main(String[] args) {
         Lcode l = new Lcode();
@@ -9221,7 +9242,7 @@ public class Lcode {
 
 //        System.out.println(l.numWaterBottles(15,4));
 //        System.out.println(l.countNoZeroPairs(11));
-//        System.out.println(l.canIWin(4,6));
+
 //        System.out.println(l.nthUglyNumber(7));
 //        System.out.println(5 % 9 + " " + 9 % 5);
 //        System.out.println(l.isValidSerialization("#,#,3,5,#"));
