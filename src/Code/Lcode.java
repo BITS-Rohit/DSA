@@ -7550,9 +7550,10 @@ public class Lcode {
     }
 
     List<Integer> mlist;
+
     public List<Integer> largestDivisibleSubset(int[] nums) {
         Arrays.sort(nums);
-        mlist  = new ArrayList<>();
+        mlist = new ArrayList<>();
 
         recl(nums, 0, new ArrayList<>());
         return mlist;
@@ -7565,17 +7566,16 @@ public class Lcode {
         }
 
         recl(nums, i + 1, l);
-        int last = l.isEmpty() ? -1 : l.get(l.size()-1);
+        int last = l.isEmpty() ? -1 : l.get(l.size() - 1);
 
-        if(last ==-1 || nums[i] %last ==0 || last %nums[i]==0){
+        if (last == -1 || nums[i] % last == 0 || last % nums[i] == 0) {
             l.add(nums[i]);
-            recl(nums, i+1 , l );
-        }
-        else {
+            recl(nums, i + 1, l);
+        } else {
             // skip current ele
-            recl(nums, i+1 , l );
+            recl(nums, i + 1, l);
             // new list start
-            List<Integer> nl =new ArrayList<>();
+            List<Integer> nl = new ArrayList<>();
             nl.add(nums[i]);
             recl(nums, i + 1, nl);
         }
@@ -9226,6 +9226,21 @@ public class Lcode {
         return false;
     }
 
+    public int minOperations(int[] nums) {
+        var stack = new int[nums.length + 1];
+        var top = 0;
+        var ans = 0;
+
+        for (var i = 0; i < nums.length; i++) {
+            while (stack[top] > nums[i]) {
+                top--;
+                ans++;
+            }
+            if (stack[top] != nums[i])
+                stack[++top] = nums[i];
+        }
+        return ans + top;
+    }
 
     /// /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     public static void main(String[] args) {
