@@ -9231,16 +9231,82 @@ public class Lcode {
         var top = 0;
         var ans = 0;
 
-        for (var i = 0; i < nums.length; i++) {
-            while (stack[top] > nums[i]) {
+        for (int num : nums) {
+            while (stack[top] > num) {
                 top--;
                 ans++;
             }
-            if (stack[top] != nums[i])
-                stack[++top] = nums[i];
+            if (stack[top] != num)
+                stack[++top] = num;
         }
         return ans + top;
     }
+
+    static class ___ {
+        int a, b;
+        String[] arr;
+
+        public int findMaxForm(String[] strs, int m, int n) {
+            a = m;
+            b = n;
+            arr = strs;
+            int[][][] dp = new int[strs.length + 1][m + 1][n + 1];
+            for (int[][] x : dp) for (int[] y : x) Arrays.fill(y, -1);
+            return memo(dp, 0, 0, 0);
+        }
+
+        int memo(int[][][] dp, int i, int m, int n) {
+            if (i == arr.length) return 0;
+            if (dp[i][m][n] != -1) return dp[i][m][n];
+
+            int[] x = getvals(arr[i]);
+            int zeros = x[0], ones = x[1];
+
+            int notPick = memo(dp, i + 1, m, n);
+            int pick = 0;
+            if (m + zeros <= a && n + ones <= b) pick = 1 + memo(dp, i + 1, m + zeros, n + ones);
+            return dp[i][m][n] = Math.max(pick, notPick);
+        }
+
+        int[] getvals(String s) {
+            int zero = 0, ones = 0;
+            for (char c : s.toCharArray()) {
+                if (c == '0') zero++;
+                else ones++;
+            }
+            return new int[]{zero, ones};
+        }
+    }
+
+    public int nextBeautifulNumber(int n) {
+        n++;
+        while(n<Integer.MAX_VALUE){
+            if (isBeautiful(n))return n;
+            else n++;
+        }
+        return -1;
+    }
+
+    boolean isBeautiful(int n){
+        var arr = new int[10];
+        int len =0;
+
+        while(n!=0){
+            int x = n%10;
+            arr[x]++;
+            n/=10;
+            len++;
+        }
+
+        for(int i=1 ; i<10; i++){
+            if (arr[i]>0){
+                if (arr[i]==i)len-=i;
+                else return false;
+            }
+        }
+        return len==0;
+    }
+
 
     /// /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     public static void main(String[] args) {
