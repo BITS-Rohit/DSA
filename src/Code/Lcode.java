@@ -9280,33 +9280,32 @@ public class Lcode {
 
     public int nextBeautifulNumber(int n) {
         n++;
-        while(n<Integer.MAX_VALUE){
-            if (isBeautiful(n))return n;
+        while (n < Integer.MAX_VALUE) {
+            if (isBeautiful(n)) return n;
             else n++;
         }
         return -1;
     }
 
-    boolean isBeautiful(int n){
+    boolean isBeautiful(int n) {
         var arr = new int[10];
-        int len =0;
+        int len = 0;
 
-        while(n!=0){
-            int x = n%10;
+        while (n != 0) {
+            int x = n % 10;
             arr[x]++;
-            n/=10;
+            n /= 10;
             len++;
         }
 
-        for(int i=1 ; i<10; i++){
-            if (arr[i]>0){
-                if (arr[i]==i)len-=i;
+        for (int i = 1; i < 10; i++) {
+            if (arr[i] > 0) {
+                if (arr[i] == i) len -= i;
                 else return false;
             }
         }
-        return len==0;
+        return len == 0;
     }
-
 
     /// /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     public static void main(String[] args) {
