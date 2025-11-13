@@ -47,3 +47,4 @@ public class count {
         System.out.println(c.cnt(c.str));
     }
 }
+
