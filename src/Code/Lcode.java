@@ -9307,9 +9307,79 @@ public class Lcode {
         return len == 0;
     }
 
+    public int[][] rangeAddQueries(int n, int[][] queries) {
+        var arr = new int[n][n];
+        for (int[] query : queries) fill(query, arr);
+        return arr;
+    }
+
+    void fill(int[] query, int[][] arr) {
+        int t_x = query[0], t_y = query[1];
+        int b_x = query[2], b_y = query[3];
+
+        // now that we have the values for top left and bottom right
+        // flow -> Mutate the subarray
+
+
+        for (int i = t_x; i <= b_x; i++) for (int j = t_y; j <= b_y; j++) arr[i][j]++;
+    }
+
+    public String complexNumberMultiply(String num1, String num2) {
+        var n1 = num1.split("\\+");
+        var n2 = num2.split("\\+");
+
+        int real_a = Integer.parseInt(n1[0]), real_b = Integer.parseInt(n2[0]);
+        int img_a = Integer.parseInt(n1[0].split("i")[0]), img_b = Integer.parseInt(n2[0].split("i")[0]);
+
+        if (n1[0].charAt(0) == '-') real_a = -real_a;
+        if (n2[0].charAt(0) == '-') real_b = -real_b;
+
+        if (n1[0].split("i")[0].charAt(0) == '-') img_a = -img_a;
+        if (n2[0].split("i")[0].charAt(0) == '-') img_b = -img_b;
+
+        System.out.println(" Final : a = " + real_a);
+
+        int real = (real_a * real_b) - (img_a * img_b);
+        int img = (real_a * img_b) + (real_b * img_a);
+
+        System.out.println("Real : " + real);
+        System.out.println("Img : " + img);
+
+        return real + "+" + img + "i";
+    }
+
+    public int numberOfSubstrings(String s) {
+        int n = s.length();
+        int[] pre = new int[n + 1];
+        pre[0] = -1;
+        for (int i = 0; i < n; i++) {
+            if (i == 0 || (i > 0 && s.charAt(i - 1) == '0')) {
+                pre[i + 1] = i;
+            } else {
+                pre[i + 1] = pre[i];
+            }
+        }
+        int res = 0;
+        for (int i = 1; i <= n; i++) {
+            int cnt0 = s.charAt(i - 1) == '0' ? 1 : 0;
+            int j = i;
+            while (j > 0 && cnt0 * cnt0 <= n) {
+                int cnt1 = (i - pre[j]) - cnt0;
+                if (cnt0 * cnt0 <= cnt1) {
+                    res += Math.min(j - pre[j], cnt1 - cnt0 * cnt0 + 1);
+                }
+                j = pre[j];
+                cnt0++;
+            }
+        }
+        return res;
+    }
+
     /// /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     public static void main(String[] args) {
         Lcode l = new Lcode();
+        System.out.println(l.complexNumberMultiply("1+-1i", "1+-1i"));
+//        System.out.println("19i".split("i")[0]);
 //        System.out.println((char) (2 + '1'));
 
 //        System.out.println(Arrays.toString(l.getSneakyNumbers(new int[]{0, 1, 0, 1})));
