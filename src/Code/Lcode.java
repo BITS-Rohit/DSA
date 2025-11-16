@@ -9325,27 +9325,21 @@ public class Lcode {
     }
 
     public String complexNumberMultiply(String num1, String num2) {
-        var n1 = num1.split("\\+");
-        var n2 = num2.split("\\+");
+        // Split into [real, imag_with_i]
+        String[] p1 = num1.split("\\+");
+        String[] p2 = num2.split("\\+");
 
-        int real_a = Integer.parseInt(n1[0]), real_b = Integer.parseInt(n2[0]);
-        int img_a = Integer.parseInt(n1[0].split("i")[0]), img_b = Integer.parseInt(n2[0].split("i")[0]);
+        int a = Integer.parseInt(p1[0]);
+        int b = Integer.parseInt(p1[1].replace("i", ""));
 
-        if (n1[0].charAt(0) == '-') real_a = -real_a;
-        if (n2[0].charAt(0) == '-') real_b = -real_b;
+        int c = Integer.parseInt(p2[0]);
+        int d = Integer.parseInt(p2[1].replace("i", ""));
 
-        if (n1[0].split("i")[0].charAt(0) == '-') img_a = -img_a;
-        if (n2[0].split("i")[0].charAt(0) == '-') img_b = -img_b;
+        // (ac - bd) + (ad + bc)i
+        int real = a * c - b * d;
+        int imag = a * d + b * c;
 
-        System.out.println(" Final : a = " + real_a);
-
-        int real = (real_a * real_b) - (img_a * img_b);
-        int img = (real_a * img_b) + (real_b * img_a);
-
-        System.out.println("Real : " + real);
-        System.out.println("Img : " + img);
-
-        return real + "+" + img + "i";
+        return real + "+" + imag + "i";
     }
 
     public int numberOfSubstrings(String s) {
@@ -9353,7 +9347,7 @@ public class Lcode {
         int[] pre = new int[n + 1];
         pre[0] = -1;
         for (int i = 0; i < n; i++) {
-            if (i == 0 || (i > 0 && s.charAt(i - 1) == '0')) {
+            if (i == 0 || s.charAt(i - 1) == '0') {
                 pre[i + 1] = i;
             } else {
                 pre[i + 1] = pre[i];
@@ -9375,10 +9369,95 @@ public class Lcode {
         return res;
     }
 
+    public int findPoisonedDuration(int[] t, int duration) {
+        if (duration < 2) return duration * t.length;
+        int poison = 0;
+        for (int i = 1; i < t.length; i++) {
+            if (t[i - 1] + duration - 1 >= t[i]) poison += t[i] - t[i - 1];
+            else poison += duration;
+        }
+        return poison += duration; // for last
+    }
+
+    public String fractionAddition(String e) {
+        int fractions = 0;
+        for (char c : e.toCharArray()) if (c == '/') fractions++;
+
+        int[] num = new int[fractions];
+        int[] den = new int[fractions];
+        int[] sign = new int[fractions];
+
+        int j = 0;
+        int i = 0;
+        sign[0] = 1;
+
+        while (i < e.length()) {
+            if (e.charAt(i) == '+') {
+                sign[j] = 1;
+                i++;
+            } else if (e.charAt(i) == '-') {
+                sign[j] = -1;
+                i++;
+            }
+            int n = 0;
+            while (i < e.length() && Character.isDigit(e.charAt(i))) {
+                n = n * 10 + (e.charAt(i) - '0');
+                i++;
+            }
+            i++;
+            int d = 0;
+            while (i < e.length() && Character.isDigit(e.charAt(i))) {
+                d = d * 10 + (e.charAt(i) - '0');
+                i++;
+            }
+
+            num[j] = n;
+            den[j] = d;
+
+            j++;
+        }
+
+        int lcm = den[0];
+        for (int k = 1; k < den.length; k++) lcm = LCM(lcm, den[k]);
+
+        long numerator = 0;
+        for (int k = 0; k < num.length; k++) numerator += sign[k] * (long) num[k] * (lcm / den[k]);
+
+        long g = GCD(Math.abs(numerator), lcm);
+        numerator /= g;
+        lcm /= g;
+
+        return numerator + "/" + lcm;
+    }
+
+    public int GCD(long a, long b) {
+        return (int)(b == 0 ? a : GCD(b, a % b));
+    }
+
+    public int LCM(int a, int b) {
+        return (a / GCD(a, b)) * b;
+    }
+
+    public int numSub(String s) {
+        char[] chars = s.toCharArray();
+        long ans = 0, count = 0;
+        for (char c : chars) {
+            if (c == '1') {
+                count++;
+            } else {
+                ans += count * (count + 1) / 2;
+                count = 0;
+            }
+        }
+        ans += count * (count + 1) / 2;
+        return (int) (ans % 1000000007);
+    }
+
     /// /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     public static void main(String[] args) {
         Lcode l = new Lcode();
-        System.out.println(l.complexNumberMultiply("1+-1i", "1+-1i"));
+//        System.out.println(l.findPoisonedDuration(new int[]{1, 2, 3, 4, 5}, 5));
+//        System.out.println(l.complexNumberMultiply("1+-1i", "1+-1i"));
 //        System.out.println("19i".split("i")[0]);
 //        System.out.println((char) (2 + '1'));
 
