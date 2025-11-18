@@ -9425,7 +9425,7 @@ public class Lcode {
 
         long g = GCD(Math.abs(numerator), lcm);
         numerator /= g;
-        lcm /= g;
+        lcm /= (int) g;
 
         return numerator + "/" + lcm;
     }
@@ -9452,6 +9452,7 @@ public class Lcode {
         ans += count * (count + 1) / 2;
         return (int) (ans % 1000000007);
     }
+
 
     /// /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     public static void main(String[] args) {
