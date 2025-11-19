@@ -9431,7 +9431,7 @@ public class Lcode {
     }
 
     public int GCD(long a, long b) {
-        return (int)(b == 0 ? a : GCD(b, a % b));
+        return (int) (b == 0 ? a : GCD(b, a % b));
     }
 
     public int LCM(int a, int b) {
@@ -9452,6 +9452,37 @@ public class Lcode {
         ans += count * (count + 1) / 2;
         return (int) (ans % 1000000007);
     }
+
+    public int findFinalValue(int[] nums, int original) {
+        Arrays.sort(nums);
+        for (int x : nums) {
+            if (original == x) original *= 2;
+            if (x > original) break;
+        }
+        return original;
+    }
+
+    public int[] asteroidCollision(int[] asteroids) {
+        Stack<Integer> st = new Stack<>();
+
+        for (int x : asteroids) {
+            boolean alive = true;
+            while (alive && x < 0 && !st.isEmpty() && st.peek() > 0) {
+                int top = st.peek();
+                if (top < -x) st.pop();
+                else if (top == -x) {
+                    st.pop();
+                    alive = false;
+                } else alive = false; // x explodes
+            }
+            if (alive) st.push(x);
+        }
+
+        int[] ans = new int[st.size()];
+        for (int i = ans.length - 1; i >= 0; i--) ans[i] = st.pop();
+        return ans;
+    }
+
 
 
     /// /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
