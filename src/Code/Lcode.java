@@ -9483,6 +9483,54 @@ public class Lcode {
         return ans;
     }
 
+    public int intersectionSizeTwo(int[][] intervals) {
+        Arrays.sort(intervals, (a, b) -> a[0] != b[0] ? a[0] - b[0] : b[1] - a[1]);
+        int[] todo = new int[intervals.length];
+        Arrays.fill(todo, 2);
+        int ans = 0, t = intervals.length;
+        while (--t >= 0) {
+            int s = intervals[t][0];
+            int e = intervals[t][1];
+            int m = todo[t];
+            for (int p = s; p < s + m; ++p) {
+                for (int i = 0; i <= t; ++i)
+                    if (todo[i] > 0 && p <= intervals[i][1])
+                        todo[i]--;
+                ans++;
+            }
+        }
+        return ans;
+    }
+    public int countPalindromicSubsequence(String s) {
+        int[] first = new int[26];
+        int[] last = new int[26];
+
+        Arrays.fill(first, Integer.MAX_VALUE);
+
+        for (int i = 0; i < s.length(); i++) {
+            int charIndex = s.charAt(i) - 'a';
+            first[charIndex] = Math.min(first[charIndex], i);
+            last[charIndex] = Math.max(last[charIndex], i);
+        }
+
+        int uniquePalindromeCount = 0;
+
+        for (int i = 0; i < 26; i++) {
+            int firstX = first[i];
+            int lastX = last[i];
+
+            if (firstX < lastX) {
+
+                Set<Character> middleCharacters = new HashSet<>();
+                for (int j = firstX + 1; j < lastX; j++) {
+                    middleCharacters.add(s.charAt(j));
+                }
+                uniquePalindromeCount += middleCharacters.size();
+            }
+        }
+
+        return uniquePalindromeCount;
+    }
 
 
     /// /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
