@@ -9501,6 +9501,7 @@ public class Lcode {
         }
         return ans;
     }
+
     public int countPalindromicSubsequence(String s) {
         int[] first = new int[26];
         int[] last = new int[26];
@@ -9533,9 +9534,25 @@ public class Lcode {
     }
 
 
+
+    public int smallestRepunitDivByK(int k) {
+        // stnp : int x , int y
+        // stnp st = new stnp();
+        if (k == 1) return k; int x = 1;
+        for (int i = 2; i <= k; i++) {
+            x *= 10; x++; // next x
+            if (x % k == 0) return i;
+            x %= k;
+        }
+        return -1;
+    }
+
+
     /// /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     public static void main(String[] args) {
         Lcode l = new Lcode();
+//        System.out.println(11 % 3);
+//        System.out.println(l.smallestRepunitDivByK(3)); // 3
 //        System.out.println(l.findPoisonedDuration(new int[]{1, 2, 3, 4, 5}, 5));
 //        System.out.println(l.complexNumberMultiply("1+-1i", "1+-1i"));
 //        System.out.println("19i".split("i")[0]);
