@@ -9547,11 +9547,41 @@ public class Lcode {
         return -1;
     }
 
+    public long maxSubarraySum(int[] nums, int k) {
+        int p = geT(nums, k);
+        long max = (long) -1e17;
+
+        long[] prefix = new long[Math.min(p+1, nums.length)];
+        prefix[0] = nums[0];
+        for (int i = 1; i < nums.length; i++) {
+            prefix[i] = prefix[i - 1] + nums[i];
+        }
+
+        while (p != 0) {
+            long cur = prefix[p - 1];
+            max = Math.max(max, cur);
+
+            for (int i = p; i < nums.length; i++) {
+                cur += nums[i] -  nums[i - p];
+                max = Math.max(max, cur);
+            }
+            p -= k;
+        }
+        return max;
+    }
+
+    int geT(int[] nums, int k) {
+        int l = nums.length;
+        if (l % k != 0) l -= l % k;
+        return l;
+    }
+
 
     /// /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     public static void main(String[] args) {
         Lcode l = new Lcode();
-//        System.out.println(11 % 3);
+//        System.out.println(l.maxSubarraySum(new int[]{-8}, 1));
+        System.out.println( String.valueOf(Long.MIN_VALUE).length());
 //        System.out.println(l.smallestRepunitDivByK(3)); // 3
 //        System.out.println(l.findPoisonedDuration(new int[]{1, 2, 3, 4, 5}, 5));
 //        System.out.println(l.complexNumberMultiply("1+-1i", "1+-1i"));
