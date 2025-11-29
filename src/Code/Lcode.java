@@ -9576,6 +9576,29 @@ public class Lcode {
         return l;
     }
 
+    public int[] smallerNumbersThanCurrent(int[] nums) {
+        int[] clone = Arrays.copyOf(nums,nums.length);
+//
+//        int j =0;
+//        for(int x : nums)clone[j++] = x;
+        Arrays.sort(clone);
+
+        Map<Integer,Integer> map = new HashMap<>();
+        int n = clone.length;
+
+        for(int i=0; i<n; i++){
+            if (map.containsKey(clone[i]))continue;
+            map.put(clone[i],i);
+        }
+        System.out.println(Arrays.toString(clone));
+        System.out.println(Arrays.toString(nums));
+        System.out.println(map);
+        int j=0; //reset
+        for(int x : nums){
+            clone[j++] = map.get(x);
+        }
+        return clone;
+    }
 
     /// /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     public static void main(String[] args) {
