@@ -9534,13 +9534,14 @@ public class Lcode {
     }
 
 
-
     public int smallestRepunitDivByK(int k) {
         // stnp : int x , int y
         // stnp st = new stnp();
-        if (k == 1) return k; int x = 1;
+        if (k == 1) return k;
+        int x = 1;
         for (int i = 2; i <= k; i++) {
-            x *= 10; x++; // next x
+            x *= 10;
+            x++; // next x
             if (x % k == 0) return i;
             x %= k;
         }
@@ -9551,7 +9552,7 @@ public class Lcode {
         int p = geT(nums, k);
         long max = (long) -1e17;
 
-        long[] prefix = new long[Math.min(p+1, nums.length)];
+        long[] prefix = new long[Math.min(p + 1, nums.length)];
         prefix[0] = nums[0];
         for (int i = 1; i < nums.length; i++) {
             prefix[i] = prefix[i - 1] + nums[i];
@@ -9562,7 +9563,7 @@ public class Lcode {
             max = Math.max(max, cur);
 
             for (int i = p; i < nums.length; i++) {
-                cur += nums[i] -  nums[i - p];
+                cur += nums[i] - nums[i - p];
                 max = Math.max(max, cur);
             }
             p -= k;
@@ -9577,34 +9578,86 @@ public class Lcode {
     }
 
     public int[] smallerNumbersThanCurrent(int[] nums) {
-        int[] clone = Arrays.copyOf(nums,nums.length);
+        int[] clone = Arrays.copyOf(nums, nums.length);
 //
 //        int j =0;
 //        for(int x : nums)clone[j++] = x;
         Arrays.sort(clone);
 
-        Map<Integer,Integer> map = new HashMap<>();
+        Map<Integer, Integer> map = new HashMap<>();
         int n = clone.length;
 
-        for(int i=0; i<n; i++){
-            if (map.containsKey(clone[i]))continue;
-            map.put(clone[i],i);
+        for (int i = 0; i < n; i++) {
+            if (map.containsKey(clone[i])) continue;
+            map.put(clone[i], i);
         }
         System.out.println(Arrays.toString(clone));
         System.out.println(Arrays.toString(nums));
         System.out.println(map);
-        int j=0; //reset
-        for(int x : nums){
+        int j = 0; //reset
+        for (int x : nums) {
             clone[j++] = map.get(x);
         }
         return clone;
     }
 
+    public int minSubarray(int[] nums, int p) {
+        long total = 0;
+        for (int x : nums) total += x;
+        int rem = (int) (total % p);
+        if (rem == 0) return 0; // already divisible
+
+        int n = nums.length;
+        Map<Integer, Integer> map = new HashMap<>();
+        map.put(0, -1);
+
+        long prefix = 0;
+        int ans = n;
+
+        for (int i = 0; i < n; i++) {
+            prefix = (prefix + nums[i]) % p;
+            int need = (int) ((prefix - rem + p) % p);
+
+            if (map.containsKey(need)) ans = Math.min(ans, i - map.get(need));
+            map.put((int) prefix, i);
+        }
+        return ans == n ? -1 : ans;
+    }
+
+    public long maxRunTime(int n, int[] batteries) {
+        long sum = 0;
+        for (int b : batteries) sum += b;
+
+        long left = 0, right = sum / n; // upper bound
+        long ans = 0;
+
+        while (left <= right) {
+            long mid = left + (right - left) / 2; // candidate time T
+            if (canRun(n, batteries, mid)) {
+                ans = mid;          // mid is feasible, try for more
+                left = mid + 1;
+            } else {
+                right = mid - 1;    // mid not feasible, try smaller
+            }
+        }
+        return ans;
+    }
+
+    private boolean canRun(int n, int[] batteries, long t) {
+        long total = 0;
+        for (int b : batteries) {
+            total += Math.min(b, t); // each battery contributes at most t
+            if (total >= t * n) return true; // enough power
+        }
+        return total >= t * n;
+    }
+
     /// /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     public static void main(String[] args) {
         Lcode l = new Lcode();
+        System.out.println(0 % 6);
 //        System.out.println(l.maxSubarraySum(new int[]{-8}, 1));
-        System.out.println( String.valueOf(Long.MIN_VALUE).length());
+//        System.out.println( String.valueOf(Long.MIN_VALUE).length());
 //        System.out.println(l.smallestRepunitDivByK(3)); // 3
 //        System.out.println(l.findPoisonedDuration(new int[]{1, 2, 3, 4, 5}, 5));
 //        System.out.println(l.complexNumberMultiply("1+-1i", "1+-1i"));
