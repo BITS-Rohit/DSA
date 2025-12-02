@@ -9652,6 +9652,47 @@ public class Lcode {
         return total >= t * n;
     }
 
+    private static final long MOD = 1_000_000_007L;
+
+    public int countTrapezoids(int[][] points) {
+        // Group points by y-coordinate
+        Map<Integer, Integer> countPerY = new HashMap<>();
+        for (int[] p : points) {
+            int y = p[1];
+            countPerY.put(y, countPerY.getOrDefault(y, 0) + 1);
+        }
+
+        // For each y, compute number of possible segments C(cnt, 2)
+        List<Long> segments = new ArrayList<>();
+        for (int cnt : countPerY.values()) {
+            if (cnt >= 2) {
+                long c2 = (long) cnt * (cnt - 1) / 2;
+                segments.add(c2 % MOD);
+            }
+        }
+
+        if (segments.size() < 2) {
+            return 0; // need at least two horizontal lines with segments
+        }
+
+        // Prefix sum from right to left so that
+        // for each i, we know sum of segments after i
+        int m = segments.size();
+        long[] suffix = new long[m + 1];
+        for (int i = m - 1; i >= 0; --i) {
+            suffix[i] = (suffix[i + 1] + segments.get(i)) % MOD;
+        }
+
+        long ans = 0;
+        for (int i = 0; i < m; ++i) {
+            long a = segments.get(i);
+            long sumAfter = suffix[i + 1];
+            ans = (ans + (a * sumAfter) % MOD) % MOD;
+        }
+
+        return (int) ans;
+    }
+
     /// /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     public static void main(String[] args) {
         Lcode l = new Lcode();
