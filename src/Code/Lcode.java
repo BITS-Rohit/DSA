@@ -9693,6 +9693,95 @@ public class Lcode {
         return (int) ans;
     }
 
+    static class Slope {
+        int dx, dy;
+        Slope(long x1, long y1, long x2, long y2) {
+            long dx = x2 - x1;
+            long dy = y2 - y1;
+            if (dx == 0) {
+                this.dx = 0;
+                this.dy = 1;
+            } else if (dy == 0) {
+                this.dx = 1;
+                this.dy = 0;
+            } else {
+                int sign = (dx < 0) ^ (dy < 0) ? -1 : 1;
+                dx = Math.abs(dx);
+                dy = Math.abs(dy);
+                long g = gcd(dx, dy);
+                this.dx = (int)(sign * (dx / g));
+                this.dy = (int)(dy / g);
+            }
+        }
+        @Override
+        public int hashCode() {
+            return 31 * dx + dy;
+        }
+        @Override
+        public boolean equals(Object o) {
+            if (!(o instanceof Slope)) return false;
+            Slope s = (Slope)o;
+            return dx == s.dx && dy == s.dy;
+        }
+    }
+
+    static long gcd(long a, long b) {
+        while (b != 0) {
+            long t = a % b;
+            a = b;
+            b = t;
+        }
+        return a;
+    }
+
+    public int countTrapezoids2(int[][] points) {
+        int n = points.length;
+        Map<Slope, Map<Long, Integer>> map = new HashMap<>();
+
+        for (int i = 0; i < n; ++i) {
+            long x1 = points[i][0], y1 = points[i][1];
+            for (int j = i + 1; j < n; ++j) {
+                long x2 = points[j][0], y2 = points[j][1];
+                Slope s = new Slope(x1, y1, x2, y2);
+
+                long dx = s.dx, dy = s.dy;
+                long c = dy * x1 - dx * y1;
+                long g = gcd(Math.abs(c), gcd(Math.abs(dx), Math.abs(dy)));
+                if (g != 0) {
+                    dx /= g; dy /= g; c /= g;
+                }
+                long lineId = (dx & 0xffffL) << 48 ^ (dy & 0xffffL) << 32 ^ (c & 0xffffffffL);
+
+                map.computeIfAbsent(s, k -> new HashMap<>())
+                        .merge(lineId, 1, Integer::sum);
+            }
+        }
+
+        long ans = 0L;
+
+        for (Map<Long, Integer> lineMap : map.values()) {
+            long totalSeg = 0;
+            for (int cnt : lineMap.values()) {
+                totalSeg += cnt;
+            }
+            long totalPairs = totalSeg * (totalSeg - 1) / 2;
+
+            long sameLinePairs = 0;
+            for (int cnt : lineMap.values()) {
+                sameLinePairs += (long) cnt * (cnt - 1) / 2;
+            }
+
+            ans += (totalPairs - sameLinePairs);
+        }
+
+        // If problem wants plain integer (no modulo) and guarantees it fits:
+        return (int) ans;
+
+        // If problem wants modulo 1e9+7:
+        // long MOD = 1_000_000_007L;
+        // return (int) (ans % MOD);
+    }
+
     /// /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     public static void main(String[] args) {
         Lcode l = new Lcode();
