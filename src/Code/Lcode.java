@@ -9695,6 +9695,7 @@ public class Lcode {
 
     static class Slope {
         int dx, dy;
+
         Slope(long x1, long y1, long x2, long y2) {
             long dx = x2 - x1;
             long dy = y2 - y1;
@@ -9709,18 +9710,20 @@ public class Lcode {
                 dx = Math.abs(dx);
                 dy = Math.abs(dy);
                 long g = gcd(dx, dy);
-                this.dx = (int)(sign * (dx / g));
-                this.dy = (int)(dy / g);
+                this.dx = (int) (sign * (dx / g));
+                this.dy = (int) (dy / g);
             }
         }
+
         @Override
         public int hashCode() {
             return 31 * dx + dy;
         }
+
         @Override
         public boolean equals(Object o) {
             if (!(o instanceof Slope)) return false;
-            Slope s = (Slope)o;
+            Slope s = (Slope) o;
             return dx == s.dx && dy == s.dy;
         }
     }
@@ -9748,7 +9751,9 @@ public class Lcode {
                 long c = dy * x1 - dx * y1;
                 long g = gcd(Math.abs(c), gcd(Math.abs(dx), Math.abs(dy)));
                 if (g != 0) {
-                    dx /= g; dy /= g; c /= g;
+                    dx /= g;
+                    dy /= g;
+                    c /= g;
                 }
                 long lineId = (dx & 0xffffL) << 48 ^ (dy & 0xffffL) << 32 ^ (c & 0xffffffffL);
 
@@ -9774,18 +9779,32 @@ public class Lcode {
             ans += (totalPairs - sameLinePairs);
         }
 
-        // If problem wants plain integer (no modulo) and guarantees it fits:
         return (int) ans;
+    }
 
-        // If problem wants modulo 1e9+7:
-        // long MOD = 1_000_000_007L;
-        // return (int) (ans % MOD);
+    public int countCollisions(String directions) {
+        char[] arr = directions.toCharArray();
+        int n = arr.length, collisions = 0;
+
+        int i = 0;
+        while (i < n && arr[i] == 'L') i++;
+
+        int j = n - 1;
+        while (j >= 0 && arr[j] == 'R') j--;
+
+        // Between i..j, all L and R will eventually collide or become S
+        for (int k = i; k <= j; k++) {
+            if (arr[k] != 'S') collisions++;
+        }
+
+        return collisions;
     }
 
     /// /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     public static void main(String[] args) {
         Lcode l = new Lcode();
         System.out.println(0 % 6);
+
 //        System.out.println(l.maxSubarraySum(new int[]{-8}, 1));
 //        System.out.println( String.valueOf(Long.MIN_VALUE).length());
 //        System.out.println(l.smallestRepunitDivByK(3)); // 3
