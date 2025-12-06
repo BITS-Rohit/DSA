@@ -9722,8 +9722,7 @@ public class Lcode {
 
         @Override
         public boolean equals(Object o) {
-            if (!(o instanceof Slope)) return false;
-            Slope s = (Slope) o;
+            if (!(o instanceof Slope s)) return false;
             return dx == s.dx && dy == s.dy;
         }
     }
@@ -9800,10 +9799,111 @@ public class Lcode {
         return collisions;
     }
 
+    public int countPartitions(int[] nums) {
+        // we can use prefix sum
+        var n = nums.length;
+        int[] prefix = new int[n];
+        prefix[0] = nums[0];
+
+        for (int i = 1; i < n; i++) prefix[i] = prefix[i - 1] + nums[i];
+
+        int even = 0;
+        for (int i = 0; i < n - 1; i++) {
+            int left = prefix[i]; // till prefix i
+            int right = prefix[n - 1] - left;
+            if (Math.abs(left - right) % 2 == 0) even++;
+        }
+        return even;
+    }
+
+    public int countValidSelections(int[] nums) {
+        // for every i where the val = 0 we can check by making it move left or right.
+        int valid = 0;
+        int sum = Arrays.stream(nums).sum();
+        int i = 0;
+        for (int x : nums) {
+            if (x == 0) {
+                if (validpath(nums, sum, i, 0)) valid++; // left
+                System.out.println("------");
+                if (validpath(nums, sum, i, 1)) valid++; // right
+            }
+            i++;
+        }
+        return valid;
+    }
+
+    boolean validpath(int[] arr, int sum, int idx, int dir) {
+        if (idx < 0 || idx == arr.length) return sum == 0;
+//        System.out.println("Sum : "+sum + ", idx : "+idx + ", dir" + Arrays.toString(arr));
+        boolean ans = false;
+        if (arr[idx] == 0) ans |= validpath(arr, sum, dir == 0 ? idx - 1 : idx + 1, dir); // forward
+        else {
+            arr[idx]--;
+            sum--;
+            ans |= validpath(arr, sum, dir == 0 ? idx + 1 : idx - 1, dir == 0 ? 1 : 0); // idx & dir reversed
+            arr[idx]++;
+        }
+        return ans;
+    }
+
+    public int countPartitions(int[] nums, int k) {
+        int n = nums.length;
+        int MOD = 1_000_000_007;
+
+        long[] dp = new long[n + 1];
+        dp[0] = 1;
+
+        long[] prefixDp = new long[n + 1];
+        prefixDp[0] = 1; // prefixDp[-1] is conceptually 0
+
+        Deque<Integer> minDeque = new ArrayDeque<>();
+        Deque<Integer> maxDeque = new ArrayDeque<>();
+
+        int left = 0;
+
+        for (int right = 0; right < n; right++) {
+            while (!minDeque.isEmpty() && nums[minDeque.peekLast()] >= nums[right]) {
+                minDeque.pollLast();
+            }
+            minDeque.offerLast(right);
+
+            while (!maxDeque.isEmpty() && nums[maxDeque.peekLast()] <= nums[right]) {
+                maxDeque.pollLast();
+            }
+            maxDeque.offerLast(right);
+
+            while (nums[maxDeque.peekFirst()] - nums[minDeque.peekFirst()] > k) {
+                left++;
+                if (minDeque.peekFirst() < left) {
+                    minDeque.pollFirst();
+                }
+                if (maxDeque.peekFirst() < left) {
+                    maxDeque.pollFirst();
+                }
+            }
+
+            long currentWays;
+            if (left == 0) {
+                currentWays = prefixDp[right];
+            } else {
+                currentWays = (prefixDp[right] - prefixDp[left - 1] + MOD) % MOD;
+            }
+
+            dp[right + 1] = currentWays;
+
+            prefixDp[right + 1] = (prefixDp[right] + dp[right + 1]) % MOD;
+        }
+
+        return (int) dp[n];
+    }
+
     /// /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     public static void main(String[] args) {
         Lcode l = new Lcode();
-        System.out.println(0 % 6);
+//        System.out.println(l.countValidSelections(new int[] {1,0,2,0,3}));
+//        System.out.println(Integer.toBinaryString(1000).length());
+//        System.out.println(l.countPartitions(new int[]{10,10,3,7,6}));
+//        System.out.println(0 % 6);
 
 //        System.out.println(l.maxSubarraySum(new int[]{-8}, 1));
 //        System.out.println( String.valueOf(Long.MIN_VALUE).length());

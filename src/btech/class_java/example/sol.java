@@ -1,9 +1,6 @@
 package btech.class_java.example;
 
 
-
-
-
 class Solution {
     public long countNoZeroPairs(long n) {
         String s = String.valueOf(n);
