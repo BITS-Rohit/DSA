@@ -9897,9 +9897,29 @@ public class Lcode {
         return (int) dp[n];
     }
 
+    public int countOdds(int low, int high) {
+        int ans = (high-low) / 2;
+        if (low%2==1 || high%2==1)ans++;
+        return ans;
+    }
+
+    public int countTriples(int n) {
+        int count = 0;
+        for (int a = 1; a <= n; a++) {
+            for (int b = 1; b <= n; b++) {
+                int sum = a*a + b*b;
+                int c = Math.sqrt(sum);
+                if (c <= n && c*c == sum) count++;
+            }
+        }
+        return count;
+    }
+
+
     /// /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     public static void main(String[] args) {
         Lcode l = new Lcode();
+        System.out.println(l.countTriples(5));
 //        System.out.println(l.countValidSelections(new int[] {1,0,2,0,3}));
 //        System.out.println(Integer.toBinaryString(1000).length());
 //        System.out.println(l.countPartitions(new int[]{10,10,3,7,6}));
