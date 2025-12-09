@@ -9898,8 +9898,8 @@ public class Lcode {
     }
 
     public int countOdds(int low, int high) {
-        int ans = (high-low) / 2;
-        if (low%2==1 || high%2==1)ans++;
+        int ans = (high - low) / 2;
+        if (low % 2 == 1 || high % 2 == 1) ans++;
         return ans;
     }
 
@@ -9907,14 +9907,34 @@ public class Lcode {
         int count = 0;
         for (int a = 1; a <= n; a++) {
             for (int b = 1; b <= n; b++) {
-                int sum = a*a + b*b;
+                int sum = a * a + b * b;
                 int c = Math.sqrt(sum);
-                if (c <= n && c*c == sum) count++;
+                if (c <= n && c * c == sum) count++;
             }
         }
         return count;
     }
 
+    public int specialTriplets(int[] nums) {
+        Map<Integer, Integer> leftCounts = new HashMap<>();
+        Map<Integer, Integer> rightCounts = new HashMap<>();
+
+        for (int num : nums) {
+            rightCounts.merge(num, 1, Integer::sum);
+        }
+        long totalCount = 0;
+        final int MOD = (int) 1e9 + 7;
+        for (int currentNum : nums) {
+            rightCounts.merge(currentNum, -1, Integer::sum);
+            int targetValue = currentNum * 2;
+            long leftCount = leftCounts.getOrDefault(targetValue, 0);
+            long rightCount = rightCounts.getOrDefault(targetValue, 0);
+            long tripletCount = (leftCount * rightCount) % MOD;
+            totalCount = (totalCount + tripletCount) % MOD;
+            leftCounts.merge(currentNum, 1, Integer::sum);
+        }
+        return (int) totalCount;
+    }
 
     /// /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     public static void main(String[] args) {
