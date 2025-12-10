@@ -364,3 +364,6 @@ END ?
 DELIMITER ;
 
 
+
+SELECT * FROM users WHERE name LIKE '_a%_a';
+
