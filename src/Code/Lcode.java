@@ -10041,7 +10041,7 @@ public class Lcode {
         );
 
         for (int i = 0; i < code.length; i++) {
-            if (isActive[i] && allowed.contains(businessLine[i]) && isValid(code[i])) {
+            if (isActive[i] && allowed.contains(businessLine[i]) && isValid__(code[i])) {
                 valid.add(i);
             }
         }
@@ -10057,12 +10057,35 @@ public class Lcode {
         return result;
     }
 
-    private boolean isValid(String s) {
-        if (s == null || s.length() == 0) return false;
+    private boolean isValid__(String s) {
+        if (s == null || s.isEmpty()) return false;
         for (char c : s.toCharArray()) {
             if (!Character.isLetterOrDigit(c) && c != '_') return false;
         }
         return true;
+    }
+    public int numberOfWays(String corridor) {
+        final int MOD = 1_000_000_007;
+        long ways = 1;
+
+        int seats = 0;
+        int plantsBetween = 0;
+        boolean inGap = false;
+
+        for (char c : corridor.toCharArray()) {
+            if (c == 'S') {
+                seats++;
+                if (seats > 2 && seats % 2 == 1) {
+                    ways = (ways * (plantsBetween + 1)) % MOD;
+                    plantsBetween = 0;
+                }
+                inGap = seats % 2 == 0;
+            } else if (inGap) {
+                plantsBetween++;
+            }
+        }
+
+        return seats >= 2 && seats % 2 == 0 ? (int) ways : 0;
     }
 
     /// /////////////////////////////////////////////////////////////////////////////////////////////////////////////////

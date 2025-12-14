@@ -364,6 +364,44 @@ END ?
 DELIMITER ;
 
 
+SELECT *
+FROM users
+WHERE name LIKE '_a%_a';
 
-SELECT * FROM users WHERE name LIKE '_a%_a';
+
+SELECT name,
+       gender,
+       AVG(salary) OVER (PARTITION BY gender) AS avg_gender_salary
+FROM users;
+
+SELECT gender , AVG(salary) as avg from users GROUP BY gender;
+
+SELECT name, gender,
+       RANK() OVER (
+           PARTITION BY gender
+           ORDER BY salary DESC
+           ) AS gender_rank
+FROM users;
+
+
+SELECT
+    id,
+    name,
+    salary,
+
+    ROW_NUMBER() OVER (
+        ORDER BY salary DESC
+        ) AS row_num,
+
+    RANK() OVER (
+        ORDER BY salary DESC
+        ) AS rank_val,
+
+    DENSE_RANK() OVER (
+        ORDER BY salary DESC
+        ) AS dense_rank_val
+
+FROM users
+ORDER BY salary DESC;
+
 

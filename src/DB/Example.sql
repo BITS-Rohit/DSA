@@ -363,4 +363,7 @@ GROUP BY u.id, u.name, u.gender, a.address_line, a.city, a.state;
 END ?
 DELIMITER ;
 
+SELECT name, gender,
+       AVG(salary) OVER (PARTITION BY gender) AS avg_gender_salary
+FROM users;
 
