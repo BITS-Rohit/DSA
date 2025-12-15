@@ -10088,6 +10088,21 @@ public class Lcode {
         return seats >= 2 && seats % 2 == 0 ? (int) ways : 0;
     }
 
+    public long getDescentPeriods(int[] prices) {
+        long ans = 1;
+        long streak = 1;
+
+        for (int i = 1; i < prices.length; i++) {
+            if (prices[i] == prices[i - 1] - 1) {
+                streak++;
+            } else {
+                streak = 1;
+            }
+            ans += streak;
+        }
+        return ans;
+    }
+
     /// /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     public static void main(String[] args) {
         Lcode l = new Lcode();
