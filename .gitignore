@@ -27,3 +27,9 @@ bin/
 
 ### Mac OS ###
 .DS_Store
+
+BTECH.iml
+.idea
+.github
+qodana.sarif.json
+qodana.yaml
