@@ -367,3 +367,8 @@ SELECT name, gender,
        AVG(salary) OVER (PARTITION BY gender) AS avg_gender_salary
 FROM users;
 
+
+SELECT COUNT(DISTINCT users.gender) from users;
+
+SHOW CREATE  TABLE  users;
+DESC users;

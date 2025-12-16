@@ -3,7 +3,7 @@
   <component name="SqlDialectMappings">
     <file url="file://$APPLICATION_CONFIG_DIR$/consoles/db/dd02954c-41c3-40c1-9f0d-1e91da8a7a88/console.sql" dialect="MySQL" />
     <file url="file://$PROJECT_DIR$/.idea/queries/Query.sql" dialect="MySQL" />
-    <file url="file://$PROJECT_DIR$/src/DB/Example.sql" dialect="MySQL" />
+    <file url="file://$PROJECT_DIR$/src/DB/console.sql" dialect="MySQL" />
     <file url="file://$PROJECT_DIR$/src/DB/script.sql" dialect="MySQL" />
   </component>
 </project>

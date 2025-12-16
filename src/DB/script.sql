@@ -1,10 +1,7 @@
 -- Here we will meanwhile practice for our ARCH & SDK DB
-SHOW databases;
+# SHOW databases;
 
 -- Creating ARCH Based Plugin Table
-CREATE DATABASE IF NOT EXISTS ARCH;
-USE ARCH;
-
 -- Main Table PLugin : primary key(id) , p_name , version , platform, added_at, last_updated
 
 -- Helper Metadata :  foreign key (p_id) on plugin(id) ,  active , tool_count , desc , repo_url ,file_name(+ p_id : unique)
@@ -39,50 +36,112 @@ USE ARCH;
 -- 1. Self : it will handle all chats byitself . replying by itself no human user need to reply or command based.
 -- 2. Co-op : it will work with the user while maintaining the
 
-# drop database  if exists ARCH ;
+DROP DATABASE IF EXISTS Architecture;
 CREATE DATABASE Architecture;
 USE Architecture;
 
-CREATE TABLE Plugins
+-- =========================
+-- Lookup Tables
+-- =========================
+CREATE TABLE platform
+(
+    id   INT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(50) NOT NULL,
+    CONSTRAINT uk_platform_name UNIQUE (name)
+);
+
+CREATE TABLE plugin_type
+(
+    id   INT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(50) NOT NULL,
+    CONSTRAINT uk_plugin_type_name UNIQUE (name)
+);
+
+CREATE TABLE event_type
+(
+    id   INT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(50) NOT NULL,
+    CONSTRAINT uk_event_type_name UNIQUE (name)
+);
+
+-- =========================
+-- Core Plugin Table
+-- =========================
+CREATE TABLE plugins
 (
     id           INT AUTO_INCREMENT PRIMARY KEY,
     name         VARCHAR(100) NOT NULL,
-    version      VARCHAR(100) NOT NULL,
-    platform     ENUM ('whatsapp', 'arattai', 'instagram', 'telegram'),
+    version      VARCHAR(50)  NOT NULL,
+    type_id      INT          NOT NULL,
+    platform_id  INT          NOT NULL,
     added_at     DATETIME  DEFAULT CURRENT_TIMESTAMP,
-    last_updated TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+    last_updated TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        ON UPDATE CURRENT_TIMESTAMP,
+
+    CONSTRAINT fk_plugins_type
+        FOREIGN KEY (type_id) REFERENCES plugin_type (id),
+
+    CONSTRAINT fk_plugins_platform
+        FOREIGN KEY (platform_id) REFERENCES platform (id),
+
+    INDEX idx_plugins_platform (platform_id)
 );
 
-CREATE TABLE plugin_Metadata
+-- =========================
+-- Plugin Metadata (1–1)
+-- =========================
+CREATE TABLE plugin_metadata
 (
     id            INT AUTO_INCREMENT PRIMARY KEY,
-    p_id          INT          NOT NULL UNIQUE,
-    Active_status ENUM ('1','0'),
+    p_id          INT          NOT NULL,
+    active_status BOOLEAN      DEFAULT TRUE,
     description   VARCHAR(255) DEFAULT 'NOT GIVEN',
-    Tool_Count    INT          NOT NULL,
-    url           VARCHAR(255) DEFAULT 'NOT GIVEN',
+    tool_count    INT          NOT NULL,
+    repo_url      VARCHAR(255),
     file_name     VARCHAR(255) NOT NULL,
-    UNIQUE (p_id, file_name),
-    CONSTRAINT plugin_metadata_to_plugin_id FOREIGN KEY (p_id)
-        REFERENCES Plugins (id)
+
+    CONSTRAINT uk_plugin_metadata_file UNIQUE (p_id, file_name),
+
+    CONSTRAINT fk_metadata_plugin
+        FOREIGN KEY (p_id) REFERENCES plugins (id)
+            ON DELETE CASCADE
 );
 
-CREATE TABLE Tool_data
+-- =========================
+-- Tools
+-- =========================
+CREATE TABLE tools
 (
     id          INT AUTO_INCREMENT PRIMARY KEY,
     p_id        INT NOT NULL,
     specifier   VARCHAR(100),
     description TEXT,
-    EVENT       ENUM ('on_msg') DEFAULT 'on_msg',
-    CONSTRAINT tools_pid_to_plugin_id FOREIGN KEY (p_id)
-        REFERENCES Plugins (id)
+    event_id    INT NOT NULL,
+    usage_count INT DEFAULT 0,
+
+    CONSTRAINT fk_tools_plugin
+        FOREIGN KEY (p_id) REFERENCES plugins (id)
+            ON DELETE CASCADE,
+
+    CONSTRAINT fk_tools_event
+        FOREIGN KEY (event_id) REFERENCES event_type (id),
+
+    INDEX idx_tools_plugin (p_id)
 );
 
-CREATE TABLE Tool_Requirement
+-- =========================
+-- Tool Requirements (per-tool security)
+-- =========================
+CREATE TABLE tool_requirements
 (
-    id      INT AUTO_INCREMENT PRIMARY KEY,
-    t_id    INT NOT NULL,
-    API_KEY VARCHAR(255) DEFAULT 'NONE',
-    CONSTRAINT tool_id_to_Tool_data_id FOREIGN KEY (t_id)
-        REFERENCES Tool_data (id)
+    id            INT AUTO_INCREMENT PRIMARY KEY,
+    tool_id       INT NOT NULL,
+    api_name      VARCHAR(100),
+    encrypted_key TEXT,
+
+    CONSTRAINT fk_requirements_tool
+        FOREIGN KEY (tool_id) REFERENCES tools (id)
+            ON DELETE CASCADE,
+
+    INDEX idx_requirements_tool (tool_id)
 );
