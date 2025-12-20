@@ -10046,11 +10046,7 @@ public class Lcode {
             }
         }
 
-        valid.sort((a, b) -> {
-            int cmp = businessLine[a].compareTo(businessLine[b]);
-            if (cmp != 0) return cmp;
-            return code[a].compareTo(code[b]);
-        });
+        valid.sort(Comparator.comparing((Integer a) -> businessLine[a]).thenComparing(a -> code[a]));
 
         List<String> result = new ArrayList<>();
         for (int i : valid) result.add(code[i]);
@@ -10113,12 +10109,84 @@ public class Lcode {
         }
         long res = profitSum[n];
         for (int i = k - 1; i < n; i++) {
-            long leftProfit = profitSum[i - k + 1];
-            long rightProfit = profitSum[n] - profitSum[i + 1];
-            long changeProfit = priceSum[i + 1] - priceSum[i - k / 2 + 1];
-            res = Math.max(res, leftProfit + changeProfit + rightProfit);
+            long leftp = profitSum[i - k + 1];
+            long rightp = profitSum[n] - profitSum[i + 1];
+            long change = priceSum[i + 1] - priceSum[i - k / 2 + 1];
+            res = Math.max(res, leftp + change + rightp);
         }
         return res;
+    }
+
+    public List<Integer> findAllPeople(int n, int[][] meetings, int firstPerson) {
+        Arrays.sort(meetings, (a,b) -> a[2] - b[2]);
+
+        boolean[] know = new boolean[n];
+        know[0] = know[firstPerson] = true;
+
+        int i = 0;
+        while (i < meetings.length) {
+            int t = meetings[i][2];
+            Map<Integer, Integer> parent = new HashMap<>();
+
+            // union same-time meetings
+            int j = i;
+            while (j < meetings.length && meetings[j][2] == t) {
+                union(meetings[j][0], meetings[j][1], parent);
+                j++;
+            }
+
+            // mark components that have secret
+            Set<Integer> good = new HashSet<>();
+            for (int k = i; k < j; k++) {
+                int u = meetings[k][0], v = meetings[k][1];
+                if (know[u] || know[v]) {
+                    good.add(find(u, parent));
+                    good.add(find(v, parent));
+                }
+            }
+
+            // spread inside good components
+            for (int k = i; k < j; k++) {
+                int u = meetings[k][0], v = meetings[k][1];
+                if (good.contains(find(u, parent))) {
+                    know[u] = know[v] = true;
+                }
+            }
+            i = j;
+        }
+
+        List<Integer> ans = new ArrayList<>();
+        for (int p = 0; p < n; p++) if (know[p]) ans.add(p);
+        return ans;
+    }
+
+    int find(int x, Map<Integer,Integer> p) {
+        p.putIfAbsent(x, x);
+        if (p.get(x) != x) p.put(x, find(p.get(x), p));
+        return p.get(x);
+    }
+
+    void union(int a, int b, Map<Integer,Integer> p) {
+        p.putIfAbsent(a, a);
+        p.putIfAbsent(b, b);
+        p.put(find(a, p), find(b, p));
+    }
+
+    public int minDeletionSize(String[] strs) {
+        int delete = 0;
+        int size = strs[0].length();
+
+        for(int i =0; i< size; i++){
+            char last = ' ';
+            for(String x : strs){
+                if (last != ' ' && x.charAt(i)<last){
+                    delete++;
+                    break;
+                }
+                last = x.charAt(i);
+            }
+        }
+        return delete;
     }
 
     /// /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
