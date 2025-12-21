@@ -1,6 +1,8 @@
 package Code;
 
+import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.math.RoundingMode;
 import java.util.*;
 
 public class Lcode {
@@ -6733,31 +6735,6 @@ public class Lcode {
     }
 
 
-    public String pushDominoes(String dominoes) {
-        // Key observation we just need to check for the adjacent dominos
-        // Left direction we need to see R
-        // Right direction we need to L
-        // Standing dominos gives no force same as outofboundindex = 0
-        // after getting left and right dirs we need to see if the currennt
-        //     standing domino has which larger force
-        //     then it will be inclined to that dir
-        StringBuilder sb = new StringBuilder();
-        for (int i = 0; i < dominoes.length(); i++) {
-            if (dominoes.charAt(i) == '.') {
-                int left = 0, right = 0;
-                if (sb.isEmpty() && i > 0 && dominoes.charAt(i - 1) == 'R') left++;
-                else if (sb.charAt(i - 1) == 'R') left++;
-                if (i + 1 < dominoes.length() && dominoes.charAt(i + 1) == 'L') right++;
-
-                if (left == right) sb.append('.');
-                else if (left > right) sb.append('R');
-                else sb.append('L');
-            } else sb.append(dominoes.charAt(i));
-        }
-        return sb.toString();
-    }
-
-
     public int compareVersion(String v1, String v2) {
 // ------------------ 1 ms ----------
         String[] s1 = v1.split("\\.");
@@ -9908,7 +9885,7 @@ public class Lcode {
         for (int a = 1; a <= n; a++) {
             for (int b = 1; b <= n; b++) {
                 int sum = a * a + b * b;
-                int c = (int)Math.sqrt(sum);
+                int c = (int) Math.sqrt(sum);
                 if (c <= n && c * c == sum) count++;
             }
         }
@@ -10060,6 +10037,7 @@ public class Lcode {
         }
         return true;
     }
+
     public int numberOfWays(String corridor) {
         final int MOD = 1_000_000_007;
         long ways = 1;
@@ -10118,7 +10096,7 @@ public class Lcode {
     }
 
     public List<Integer> findAllPeople(int n, int[][] meetings, int firstPerson) {
-        Arrays.sort(meetings, (a,b) -> a[2] - b[2]);
+        Arrays.sort(meetings, Comparator.comparingInt(a -> a[2]));
 
         boolean[] know = new boolean[n];
         know[0] = know[firstPerson] = true;
@@ -10160,13 +10138,13 @@ public class Lcode {
         return ans;
     }
 
-    int find(int x, Map<Integer,Integer> p) {
+    int find(int x, Map<Integer, Integer> p) {
         p.putIfAbsent(x, x);
         if (p.get(x) != x) p.put(x, find(p.get(x), p));
         return p.get(x);
     }
 
-    void union(int a, int b, Map<Integer,Integer> p) {
+    void union(int a, int b, Map<Integer, Integer> p) {
         p.putIfAbsent(a, a);
         p.putIfAbsent(b, b);
         p.put(find(a, p), find(b, p));
@@ -10176,10 +10154,10 @@ public class Lcode {
         int delete = 0;
         int size = strs[0].length();
 
-        for(int i =0; i< size; i++){
+        for (int i = 0; i < size; i++) {
             char last = ' ';
-            for(String x : strs){
-                if (last != ' ' && x.charAt(i)<last){
+            for (String x : strs) {
+                if (last != ' ' && x.charAt(i) < last) {
                     delete++;
                     break;
                 }
@@ -10189,10 +10167,155 @@ public class Lcode {
         return delete;
     }
 
+    public String shortestPalindrome(String s) {
+        // if already palindrome returns.
+        // else Finding the minmum left to right range of words that are palindrome
+        int maxR = -1;
+        for (int right = 0; right < s.length(); right++) {
+            // always need to check with 0 as left and keep moving the right
+            int len = palinD(s, right);
+            maxR = Math.max(len, maxR);
+        }
+
+        // Reduction
+        if (maxR == s.length() - 1) return s;
+
+        StringBuilder remain = new StringBuilder(s.substring(maxR + 1));
+        return remain.reverse() + s;
+    }
+
+    int palinD(String s, int i) {
+        // if no palin return -1;
+        int y = i, x = 0;
+        while (x < y) {
+            char left = s.charAt(x), right = s.charAt(y);
+            if (left != right) return -1;
+            x++;
+            y--;
+        }
+        return i;
+    }
+
+    public int minDeletionSize1(String[] strs) {
+        int rows = strs.length;
+        int cols = strs[0].length();
+
+        boolean[] fixed = new boolean[rows - 1];
+        int deletions = 0;
+
+        for (int c = 0; c < cols; c++) {
+            boolean bad = false;
+
+            // check if this column breaks any unresolved pair
+            for (int r = 0; r < rows - 1; r++) {
+                if (!fixed[r] && strs[r].charAt(c) > strs[r + 1].charAt(c)) {
+                    bad = true;
+                    break;
+                }
+            }
+
+            if (bad) {
+                deletions++;   // delete this column
+                continue;
+            }
+
+            // mark newly resolved pairs
+            for (int r = 0; r < rows - 1; r++) {
+                if (!fixed[r] && strs[r].charAt(c) < strs[r + 1].charAt(c)) {
+                    fixed[r] = true;
+                }
+            }
+        }
+        return deletions;
+    }
+
+    public double soupServings(int n) {
+        Map<String, Double> dp = new HashMap<>();
+        return BigDecimal
+                .valueOf(rec(n, n, dp))
+                .setScale(5, RoundingMode.HALF_UP)
+                .doubleValue();
+    }
+
+    double rec(int A, int B, Map<String, Double> dp) {
+        if (A < 0 && B > 0) return 1;
+        else if (A <= 0 && B <= 0) return 0.5;
+        else if (A > 0 && B <= 0) return 0;
+
+        String key = A + " " + B;
+        if (dp.containsKey(key)) return dp.get(key);
+
+        double ans = ((double) 1 / 4 * rec(A - 100, B, dp))
+                + ((double) 1 / 4 * rec(A - 75, B - 25, dp))
+                + ((double) 1 / 4 * rec(A - 50, B - 50, dp))
+                + ((double) 1 / 4 * rec(A - 25, B - 75, dp));
+
+        return dp.put(key, ans);
+    }
+
+
+    static class pack {
+        int dis;
+        char c;
+
+        pack(int dis, char c) {
+            this.dis = dis;
+            this.c = c;
+        }
+
+        pack() {
+        }
+    }
+
+    public String pushDominoes(String dominoes) {
+        char[] ch = dominoes.toCharArray();
+        int len = ch.length;
+
+        for (int i = 0; i < len; i++) {
+            if (ch[i] == '.') {
+                //need to find the left and right domino with distance
+                pack left = get(ch, i, -1);
+                pack right = get(ch, i, 1);
+
+                if (left.c == 'R')while(left.dis<i)ch[left.dis++]= left.c;
+                if (right.c == 'L') while(right.dis>i)ch[right.dis--]= right.c;
+
+                if (i-1 >=0 && ch[i-1] == 'R' && i+1<len && ch[i+1]=='L')continue;
+                if (i-1>=0 && ch[i-1] == 'R' && i+1<len && ch[i+1]!='L') ch[i] = 'R';
+                if (i-1>=0 && ch[i-1] != 'R' && i+1<len && ch[i+1]=='L') ch[i] = 'L';
+            }
+        }
+        return new String(ch);
+    }
+
+    pack get(char[] ch, int j, int dir) {
+        int i = j;
+        pack ans = new pack();
+        if (dir == -1) { // left search
+            while (i >= 0) {
+                if (ch[i] == 'L' || ch[i] == 'R') {
+                    ans = new pack(j, ch[i]);
+                    break;
+                }
+                i--;
+            }
+        } else {
+            while (i < ch.length) {
+                if (ch[i] == 'L' || ch[i] == 'R') {
+                    ans = new pack(j, ch[i]);
+                    break;
+                }
+                i++;
+            }
+        }
+        return ans;
+    }
+
     /// /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     public static void main(String[] args) {
         Lcode l = new Lcode();
-        System.out.println(l.countTriples(5));
+        System.out.println(l.minDeletionSize1(new String[]{"xga", "xfb", "yfa"}));
+//        System.out.println(l.countTriples(5));
 //        System.out.println(l.countValidSelections(new int[] {1,0,2,0,3}));
 //        System.out.println(Integer.toBinaryString(1000).length());
 //        System.out.println(l.countPartitions(new int[]{10,10,3,7,6}));
