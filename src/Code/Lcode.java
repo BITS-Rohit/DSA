@@ -4,6 +4,7 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.math.RoundingMode;
 import java.util.*;
+import java.util.function.IntConsumer;
 
 public class Lcode {
     static class MyLinkedList {
@@ -10277,12 +10278,12 @@ public class Lcode {
                 pack left = get(ch, i, -1);
                 pack right = get(ch, i, 1);
 
-                if (left.c == 'R')while(left.dis<i)ch[left.dis++]= left.c;
-                if (right.c == 'L') while(right.dis>i)ch[right.dis--]= right.c;
+                if (left.c == 'R') while (left.dis < i) ch[left.dis++] = left.c;
+                if (right.c == 'L') while (right.dis > i) ch[right.dis--] = right.c;
 
-                if (i-1 >=0 && ch[i-1] == 'R' && i+1<len && ch[i+1]=='L')continue;
-                if (i-1>=0 && ch[i-1] == 'R' && i+1<len && ch[i+1]!='L') ch[i] = 'R';
-                if (i-1>=0 && ch[i-1] != 'R' && i+1<len && ch[i+1]=='L') ch[i] = 'L';
+                if (i - 1 >= 0 && ch[i - 1] == 'R' && i + 1 < len && ch[i + 1] == 'L') continue;
+                if (i - 1 >= 0 && ch[i - 1] == 'R' && i + 1 < len && ch[i + 1] != 'L') ch[i] = 'R';
+                if (i - 1 >= 0 && ch[i - 1] != 'R' && i + 1 < len && ch[i + 1] == 'L') ch[i] = 'L';
             }
         }
         return new String(ch);
@@ -10309,6 +10310,31 @@ public class Lcode {
             }
         }
         return ans;
+    }
+
+    public int minDeletionSize(String[] strs) {
+        int n = strs.length;
+        int m = strs[0].length();
+        int[] dp = new int[m];
+
+        int max = 1;
+        for (int j = 0; j < m; j++) {
+            dp[j] = 1;
+            for (int i = 0; i < j; i++) {
+                if (ok(strs, i, j)) {
+                    dp[j] = Math.max(dp[j], dp[i] + 1);
+                }
+            }
+            max = Math.max(max, dp[j]);
+        }
+        return m - max;
+    }
+
+    boolean ok(String[] strs, int i, int j) {
+        for (String s : strs) {
+            if (s.charAt(i) > s.charAt(j)) return false;
+        }
+        return true;
     }
 
     /// /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -11127,5 +11153,75 @@ class KthLargest {
         pq.offer(val);
         while (pq.size() > k) pq.poll();
         return pq.peek(); // kth largest
+    }
+}
+
+class ZeroEvenOdd {
+    private final int n;
+    boolean ev1 = false;
+    boolean ev2 = false;
+    boolean od1 = false;
+    boolean od2 = false;
+    boolean ze1 = false;
+    boolean ze2 = false;
+
+    boolean st = false;
+    int s = 1;
+
+    boolean end = false;
+
+    public ZeroEvenOdd(int n) {
+        this.n = 2 * n;
+    }
+
+    // printNumber.accept(x) outputs "x", where x is an integer.
+    public void zero(IntConsumer printNumber) throws InterruptedException {
+        if (!end) {
+            if (!st) {
+                System.out.print('0');
+                st = true;
+            }
+
+            while (ze1 & ze2) {
+                System.out.print('0');
+                ze1 = false; // reset
+                ze2 = false;
+
+                ev1 = true;
+                od1 = true;
+            }
+        }
+    }
+
+    public void even(IntConsumer printNumber) throws InterruptedException {
+        if (s > n) end = true;
+        if (!end) {
+            while (s <= n && s % 2 == 0 && ev1 && ev2) {
+                System.out.print((char) s);
+                ev1 = false;
+                ev2 = false;
+
+                ze1 = true;
+                od2 = true;
+                s++;
+            }
+        }
+
+    }
+
+    public void odd(IntConsumer printNumber) throws InterruptedException {
+        if (s > n) end = true;
+        if (!end) {
+            while (s <= n && s % 2 == 1 && od1 && od2) {
+                System.out.print((char) s);
+                od1 = false;
+                od2 = false;
+
+                ev2= true;
+                ze2 = true;
+
+                s++;
+            }
+        }
     }
 }
