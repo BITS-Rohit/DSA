@@ -2,6 +2,7 @@ package btech.DSA;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
 
 public class Trie {
@@ -47,7 +48,7 @@ public class Trie {
     }
 }
 
-class Solution {
+class SSolution {
 
     //---------Trie -------------
     static class Tnode {
@@ -89,7 +90,7 @@ class Solution {
 
         for (int i = 0; i < m; i++) {
             for (int j = 0; j < n; j++) {
-                if(trie.root.child[board[i][j]-'a']!=null) dfs(board, i, j, trie.root, result, visited);
+                if (trie.root.child[board[i][j] - 'a'] != null) dfs(board, i, j, trie.root, result, visited);
             }
         }
 
@@ -124,25 +125,25 @@ class Solution {
 }
 
 
-
 class solution {
 
-    static List <String> list;
+    static List<String> list;
 
-    static class Tnode{
+    static class Tnode {
         Tnode[] child = new Tnode[26];
         boolean isend = false;
     }
+
     static class Trie {
         Tnode root = new Tnode();
-        int mlen =0;
+        int mlen = 0;
 
-        void insert(String s ){
-            mlen= Math.max(mlen , s.length());
-            Tnode node = root ;
-            for(int i =0 ; i<s.length(); i++){
-                int idx = s.charAt(i)-'a';
-                if(node.child[idx]==null){
+        void insert(String s) {
+            mlen = Math.max(mlen, s.length());
+            Tnode node = root;
+            for (int i = 0; i < s.length(); i++) {
+                int idx = s.charAt(i) - 'a';
+                if (node.child[idx] == null) {
                     node.child[idx] = new Tnode();
                 }
                 node = node.child[idx];
@@ -150,9 +151,9 @@ class solution {
             node.isend = true;
         }
 
-        void search(StringBuilder sb , String s , int i, Tnode node ){
-            if(i==s.length()){
-                sb.deleteCharAt(sb.length()-1);// extra space remove
+        void search(StringBuilder sb, String s, int i, Tnode node) {
+            if (i == s.length()) {
+                sb.deleteCharAt(sb.length() - 1);// extra space remove
                 list.add(sb.toString());
                 return;
             }
@@ -179,9 +180,65 @@ class solution {
         list = new ArrayList<>();
 
         Trie t = new Trie();
-        for(String x : wordDict)t.insert(x);
+        for (String x : wordDict) t.insert(x);
 
         t.search(new StringBuilder(), s, 0, t.root);
         return list;
+    }
+}
+
+class Solution {
+    static class Trie {
+        Trie[] child = new Trie[26];
+        boolean end = false;
+        String word = "";
+    }
+
+    int total;
+    Trie root;
+    int len ;
+
+    void build(String word) {
+        Trie node = root;
+        for (char c : word.toCharArray()) {
+            if (node.child[c-'a'] == null) node.child[c-'a'] = new Trie();
+            node = node.child[c-'a'];
+        }
+        node.end = true;
+        node.word = word;
+    }
+
+    void search(Trie node, String s, int i) {
+        if (node.end) {
+            total++;
+            System.out.println(node.word);
+            node.end = false; // reset
+        }
+
+        for (int y = 0; y < 26; y++) {
+            if (node.child[y] != null) {
+                for (int k = i; k < len; k++) if (s.charAt(k) - 'a' == y) search(node.child[y], s, k + 1);
+            }
+        }
+    }
+
+
+
+    public int numMatchingSubseq(String s, String[] words) {
+        total = 0;
+        len = s.length();
+        root = new Trie();
+        var set = new HashSet<String>();
+        int duplicate = 0 ;
+        for(String x : words){
+            if (!set.add(x))duplicate++;
+            else {
+                set.add(x);
+                build(x);
+            }
+        }
+
+        search(root, s, 0);
+        return total+duplicate;
     }
 }

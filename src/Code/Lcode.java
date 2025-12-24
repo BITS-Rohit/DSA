@@ -4,6 +4,7 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.math.RoundingMode;
 import java.util.*;
+import java.util.concurrent.Semaphore;
 import java.util.function.IntConsumer;
 
 public class Lcode {
@@ -10312,7 +10313,7 @@ public class Lcode {
         return ans;
     }
 
-    public int minDeletionSize(String[] strs) {
+    public int minDeletionSize3(String[] strs) {
         int n = strs.length;
         int m = strs[0].length();
         int[] dp = new int[m];
@@ -10337,10 +10338,122 @@ public class Lcode {
         return true;
     }
 
+    public int numMatchingSubseq(String s, String[] words) {
+        Map<Character, List<Integer>> map = new HashMap<>();
+
+        for (int i = 0; i < s.length(); i++) {
+            map.computeIfAbsent(s.charAt(i), k -> new ArrayList<>()).add(i);
+        }
+
+        int total = 0;
+        for (String word : words) {
+            if (SearchWord(word, map)) total++;
+        }
+        return total;
+    }
+
+    boolean SearchWord(String word, Map<Character, List<Integer>> map) {
+        int lastIdx = -1;
+
+        for (char c : word.toCharArray()) {
+            if (!map.containsKey(c)) return false;
+
+            List<Integer> list = map.get(c);
+
+            // binary search: first index > lastIdx
+            int l = 0, r = list.size() - 1;
+            int pos = -1;
+
+            while (l <= r) {
+                int mid = (l + r) / 2;
+                if (list.get(mid) > lastIdx) {
+                    pos = list.get(mid);
+                    r = mid - 1;
+                } else {
+                    l = mid + 1;
+                }
+            }
+
+            if (pos == -1) return false;
+            lastIdx = pos;
+        }
+        return true;
+    }
+
+    public int totalSteps2(int[] nums) {
+        List<Integer> list = new ArrayList<>();
+        int max = Integer.MIN_VALUE;
+
+        for (int x : nums) {
+            if (x >= max) {
+                list.add(x);
+                max = x;
+            }
+        }
+        System.out.println(list);
+        if (list.isEmpty())return 0;
+
+        System.out.println(list);
+
+        System.out.print("          ");
+        for (int i = 0; i < nums.length; i++) {
+            System.out.print(i+"      ");
+        }
+        System.out.println();
+
+        int midLeaps = 0;
+        boolean[] bool = new boolean[nums.length];
+        for(int i =1; i<list.size(); i++){
+            int leap = markbool(list.get(i-1) , list.get(i), nums, bool );
+            System.out.println(list.get(i-1)+ " to "+ list.get(i) + " : "  +Arrays.toString(bool) + " : Leap = "+leap);
+            midLeaps= Math.max(midLeaps, leap);
+        }
+
+        if (list.get(list.size()-1) < nums.length-1){
+            int leap = markbool(list.get(list.size()-1) ,nums.length, nums, bool );
+            System.out.println(list.get(list.size()-1)+ " to "+ (nums.length) + " : "  +Arrays.toString(bool) + " : Leap = "+leap);
+            midLeaps= Math.max(midLeaps, leap);
+        }
+
+        // Post processment
+        // Processing only now the remains
+        System.out.println("Mid Leap: "+ midLeaps);
+//        int last = -1;
+//        for(int i=0; i<nums.length; i++){
+//            if (!bool[i]){
+//                if (last != -1 && nums[last] > nums[i]){
+//                    midLeaps++;
+//                    bool[i] = true; // unneccessary
+//                    if (last == - 1) System.out.println("last = -1");
+//                    else System.out.println("last : "+ nums[last] + " and current : " +nums[i] );
+//                }else last = i;
+//            }
+//        }
+        return midLeaps;
+    }
+
+    int markbool(int start , int end , int[] nums , boolean[] bool){
+        int size = 0;
+        start++;
+        end--;
+        int ans = end - start +1;
+        while(start<=end){
+            bool[start++] = true;
+            bool[end--] = true;
+        }
+        return ans;
+    }
+
     /// /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     public static void main(String[] args) {
         Lcode l = new Lcode();
-        System.out.println(l.minDeletionSize1(new String[]{"xga", "xfb", "yfa"}));
+//        System.out.println(l.totalSteps2(new int[]{5,3,4,4,7,3,6,11,8,5,11}));
+        System.out.println(l.totalSteps2(new int[]{10,1,2,3,4,5,6,1,2,3}));
+//        var s = List.of(2 , 3 , 5);
+//        int ans = Collections.binarySearch(s, 4);
+//        System.out.println("Binary : "+ ans);
+//        System.out.println("Recover : " + (-ans-1));
+//        System.out.println(l.minDeletionSize1(new String[]{"xga", "xfb", "yfa"}));
 //        System.out.println(l.countTriples(5));
 //        System.out.println(l.countValidSelections(new int[] {1,0,2,0,3}));
 //        System.out.println(Integer.toBinaryString(1000).length());
@@ -11158,70 +11271,40 @@ class KthLargest {
 
 class ZeroEvenOdd {
     private final int n;
-    boolean ev1 = false;
-    boolean ev2 = false;
-    boolean od1 = false;
-    boolean od2 = false;
-    boolean ze1 = false;
-    boolean ze2 = false;
 
-    boolean st = false;
-    int s = 1;
+    Semaphore z = new Semaphore(1);
+    Semaphore e = new Semaphore(0);
+    Semaphore o = new Semaphore(0);
 
-    boolean end = false;
 
     public ZeroEvenOdd(int n) {
         this.n = 2 * n;
     }
 
     // printNumber.accept(x) outputs "x", where x is an integer.
-    public void zero(IntConsumer printNumber) throws InterruptedException {
-        if (!end) {
-            if (!st) {
-                System.out.print('0');
-                st = true;
-            }
-
-            while (ze1 & ze2) {
-                System.out.print('0');
-                ze1 = false; // reset
-                ze2 = false;
-
-                ev1 = true;
-                od1 = true;
-            }
+    public void zero(IntConsumer printNumber)throws InterruptedException {
+        for (int i = 1; i <= n; i+=2) {
+            z.acquire();
+            printNumber.accept(0);
+            if (i%2==0)e.release();
+            else o.release();
         }
     }
 
     public void even(IntConsumer printNumber) throws InterruptedException {
-        if (s > n) end = true;
-        if (!end) {
-            while (s <= n && s % 2 == 0 && ev1 && ev2) {
-                System.out.print((char) s);
-                ev1 = false;
-                ev2 = false;
-
-                ze1 = true;
-                od2 = true;
-                s++;
-            }
+        for(int i=2; i<=n; i+=2){
+            e.acquire();
+            printNumber.accept(i);
+            z.release();
         }
 
     }
 
-    public void odd(IntConsumer printNumber) throws InterruptedException {
-        if (s > n) end = true;
-        if (!end) {
-            while (s <= n && s % 2 == 1 && od1 && od2) {
-                System.out.print((char) s);
-                od1 = false;
-                od2 = false;
-
-                ev2= true;
-                ze2 = true;
-
-                s++;
-            }
+    public void odd(IntConsumer printNumber) throws InterruptedException{
+        for (int i = 1; i <= n; i++) {
+            o.acquire();
+            printNumber.accept(i);
+            z.release();
         }
     }
 }
