@@ -3455,7 +3455,7 @@ public class Lcode {
         return result;
     }
 
-    public int findShortestSubArray(int[] nums) {
+    public int findShortestSubArray1(int[] nums) {
         Map<Integer, Integer> map = new HashMap<>();
         int fre = 0;
         for (int x : nums) {
@@ -3958,26 +3958,6 @@ public class Lcode {
         return c;
     }
 
-    public int[] maximumBeauty(int[][] items, int[] query) {
-        Arrays.sort(items, Comparator.comparingInt(a -> a[0]));  // Sort by price
-        int n = items.length;
-        int[] prices = new int[n];
-        int[] beauty = new int[n];
-
-        int maxBeauty = 0;
-        for (int i = 0; i < n; i++) {
-            prices[i] = items[i][0];
-            maxBeauty = Math.max(maxBeauty, items[i][1]);
-            beauty[i] = maxBeauty;
-        }
-        int[] ans = new int[query.length];
-        for (int i = 0; i < query.length; i++) {
-            int idx = Arrays.binarySearch(prices, query[i]);
-            if (idx < 0) idx = -idx - 2;  // If idx is not found then it will negative idx
-            ans[i] = (idx >= 0) ? beauty[idx] : 0;
-        }
-        return ans;
-    }
 
     public ListNode insertionSortList(ListNode head) {
         if (head == null || head.next == null) return head;
@@ -4856,18 +4836,6 @@ public class Lcode {
         return ans;
     }
 
-    public int findMaxLength(int[] arr) {
-        if (arr.length == 1) return 0;
-
-        int leftsum = 0, max = 0;
-        int c = 0;
-        for (int i = 0; i < arr.length; i++) {
-            leftsum += arr[i];
-            if (leftsum == 1) c++;
-            if (c * 2 == i + 1) max = Math.max(i + 1, max);
-        }
-        return max;
-    }
 
     public long coloredCells(int n) {
         // 1=1
@@ -10391,33 +10359,33 @@ public class Lcode {
             }
         }
         System.out.println(list);
-        if (list.isEmpty())return 0;
+        if (list.isEmpty()) return 0;
 
         System.out.println(list);
 
         System.out.print("          ");
         for (int i = 0; i < nums.length; i++) {
-            System.out.print(i+"      ");
+            System.out.print(i + "      ");
         }
         System.out.println();
 
         int midLeaps = 0;
         boolean[] bool = new boolean[nums.length];
-        for(int i =1; i<list.size(); i++){
-            int leap = markbool(list.get(i-1) , list.get(i), nums, bool );
-            System.out.println(list.get(i-1)+ " to "+ list.get(i) + " : "  +Arrays.toString(bool) + " : Leap = "+leap);
-            midLeaps= Math.max(midLeaps, leap);
+        for (int i = 1; i < list.size(); i++) {
+            int leap = markbool(list.get(i - 1), list.get(i), nums, bool);
+            System.out.println(list.get(i - 1) + " to " + list.get(i) + " : " + Arrays.toString(bool) + " : Leap = " + leap);
+            midLeaps = Math.max(midLeaps, leap);
         }
 
-        if (list.get(list.size()-1) < nums.length-1){
-            int leap = markbool(list.get(list.size()-1) ,nums.length, nums, bool );
-            System.out.println(list.get(list.size()-1)+ " to "+ (nums.length) + " : "  +Arrays.toString(bool) + " : Leap = "+leap);
-            midLeaps= Math.max(midLeaps, leap);
+        if (list.get(list.size() - 1) < nums.length - 1) {
+            int leap = markbool(list.get(list.size() - 1), nums.length, nums, bool);
+            System.out.println(list.get(list.size() - 1) + " to " + (nums.length) + " : " + Arrays.toString(bool) + " : Leap = " + leap);
+            midLeaps = Math.max(midLeaps, leap);
         }
 
         // Post processment
         // Processing only now the remains
-        System.out.println("Mid Leap: "+ midLeaps);
+        System.out.println("Mid Leap: " + midLeaps);
 //        int last = -1;
 //        for(int i=0; i<nums.length; i++){
 //            if (!bool[i]){
@@ -10432,23 +10400,156 @@ public class Lcode {
         return midLeaps;
     }
 
-    int markbool(int start , int end , int[] nums , boolean[] bool){
+    int markbool(int start, int end, int[] nums, boolean[] bool) {
         int size = 0;
         start++;
         end--;
-        int ans = end - start +1;
-        while(start<=end){
+        int ans = end - start + 1;
+        while (start <= end) {
             bool[start++] = true;
             bool[end--] = true;
         }
         return ans;
     }
 
+    public int minimumBoxes(int[] apple, int[] capacity) {
+        Arrays.sort(capacity);
+        int len = capacity.length - 1;
+        int sum = Arrays.stream(apple).sum();
+        int boxes = 0;
+
+        for (int i = len; i >= 0; i++) {
+            if (sum <= 0) return boxes;
+            else {
+                sum -= capacity[i];
+                boxes++;
+            }
+        }
+        return boxes;
+    }
+
+    public int[] maximumBeauty(int[][] items, int[] queries) {
+        TreeMap<Integer, Integer> map = new TreeMap<>();
+        for (int[] item : items) {
+            int price = item[0], beauty = item[1];
+            map.put(price, Math.max(map.getOrDefault(price, 0), beauty));
+        }
+
+        int maxSoFar = 0;
+        for (int price : map.keySet()) {
+            maxSoFar = Math.max(maxSoFar, map.get(price));
+            map.put(price, maxSoFar);
+        }
+
+        int[] ans = new int[queries.length];
+        for (int i = 0; i < queries.length; i++) {
+            Integer key = map.floorKey(queries[i]);
+            ans[i] = (key == null) ? 0 : map.get(key);
+        }
+        return ans;
+    }
+
+    public int sumSubarrayMins(int[] arr) {
+        int total = 0;
+        for (int i = 0; i < arr.length; i++) {
+            int min = arr[i];
+            total += min;
+            for (int j = i + 1; j < arr.length; j++) {
+                min = Math.min(min, arr[j]);
+                total += min;
+            }
+        }
+        return total;
+    }
+
+    public int findMaxLength(int[] nums) {
+        Map<Integer, Integer> map = new HashMap<>();
+        map.put(0, -1); // base case
+
+        int prefix = 0;
+        int max = 0;
+
+        for (int i = 0; i < nums.length; i++) {
+            prefix += (nums[i] == 1) ? 1 : -1;
+
+            if (map.containsKey(prefix)) {
+                max = Math.max(max, i - map.get(prefix));
+            } else {
+                map.put(prefix, i);
+            }
+        }
+        return max;
+    }
+
+    static class Info {
+        int freq = 0;
+        int first = -1;
+        int last = -1;
+    }
+
+    public int findShortestSubArray(int[] nums) {
+        Map<Integer, Info> map = new HashMap<>();
+        int degree = 0;
+
+        for (int i = 0; i < nums.length; i++) {
+            int x = nums[i];
+            map.putIfAbsent(x, new Info());
+            Info info = map.get(x);
+
+            if (info.freq == 0) info.first = i;
+            info.freq++;
+            info.last = i;
+
+            degree = Math.max(degree, info.freq);
+        }
+
+        int ans = nums.length;
+        for (Info info : map.values()) {
+            if (info.freq == degree) {
+                ans = Math.min(ans, info.last - info.first + 1);
+            }
+        }
+        return ans;
+    }
+
+    public boolean doesAliceWin(String s) {
+        int count = 0;
+        for (char c : s.toCharArray()) {
+            if (c == 'a' || c == 'e' || c == 'i' || c == 'o' || c == 'u') {
+                count++;
+            }
+        }
+        return count != 0;
+    }
+
+    public int bestClosingTime(String s) {
+        int y = 0;
+        for (char c : s.toCharArray()) if (c == 'Y') y++;
+
+        int n = 0, min = y, ans = 0;
+
+        for (int i = 0; i < s.length(); i++) {
+            if (s.charAt(i) == 'Y') y--;
+            else n++;
+
+            if (n + y < min) {
+                min = n + y;
+                ans = i + 1;
+            }
+        }
+        return ans;
+    }
+
+
     /// /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     public static void main(String[] args) {
         Lcode l = new Lcode();
+
+        System.out.println(l.findShortestSubArray(new int[]{1, 2, 2, 3, 1}));
+//        System.out.println(l.findMaxLength(new int[]{0, 1, 1, 1, 1, 1, 0, 0, 0}));
+//        System.out.println(l.sumSubarrayMins(new int[]{3,1,2,4}));
 //        System.out.println(l.totalSteps2(new int[]{5,3,4,4,7,3,6,11,8,5,11}));
-        System.out.println(l.totalSteps2(new int[]{10,1,2,3,4,5,6,1,2,3}));
+//        System.out.println(l.totalSteps2(new int[]{10,1,2,3,4,5,6,1,2,3}));
 //        var s = List.of(2 , 3 , 5);
 //        int ans = Collections.binarySearch(s, 4);
 //        System.out.println("Binary : "+ ans);
@@ -11282,17 +11383,17 @@ class ZeroEvenOdd {
     }
 
     // printNumber.accept(x) outputs "x", where x is an integer.
-    public void zero(IntConsumer printNumber)throws InterruptedException {
-        for (int i = 1; i <= n; i+=2) {
+    public void zero(IntConsumer printNumber) throws InterruptedException {
+        for (int i = 1; i <= n; i += 2) {
             z.acquire();
             printNumber.accept(0);
-            if (i%2==0)e.release();
+            if (i % 2 == 0) e.release();
             else o.release();
         }
     }
 
     public void even(IntConsumer printNumber) throws InterruptedException {
-        for(int i=2; i<=n; i+=2){
+        for (int i = 2; i <= n; i += 2) {
             e.acquire();
             printNumber.accept(i);
             z.release();
@@ -11300,7 +11401,7 @@ class ZeroEvenOdd {
 
     }
 
-    public void odd(IntConsumer printNumber) throws InterruptedException{
+    public void odd(IntConsumer printNumber) throws InterruptedException {
         for (int i = 1; i <= n; i++) {
             o.acquire();
             printNumber.accept(i);
