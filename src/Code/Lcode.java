@@ -2179,53 +2179,6 @@ public class Lcode {
         return false;
     }
 
-    public int tupleSameProduct(int[] nums) {
-        if (nums.length <= 3) return 0;
-        HashSet<Integer> set = new HashSet<>();
-        HashSet<int[]> set2 = new HashSet<>();
-        int n = nums.length;
-
-        for (int i = 0; i < n; i++) {
-            for (int j = (i + 1) % n; j != i; j = (j + 1) % n) {
-                for (int k = (j + 1) % n; k != i && k != j; k = (k + 1) % n) {
-                    for (int l = (k + 1) % n; l != i && l != j && l != k; l = (l + 1) % n) {
-                        if (nums[i] * nums[j] == nums[k] * nums[l]) {
-
-                            int x = 0;
-                            if (!set.add(nums[i])) x++;
-                            if (!set.add(nums[j])) x++;
-                            if (!set.add(nums[k])) x++;
-                            if (!set.add(nums[l])) x++;
-
-                            if (x == 4) continue;
-                            else {
-                                set.add(nums[i]);
-                                set.add(nums[k]);
-                                set.add(nums[j]);
-                                set.add(nums[l]);
-                                int[] nArr = new int[]{nums[i], nums[j], nums[k], nums[l]};
-                                set2.add(nArr);
-                            }
-                        }
-                        if (l == (i - 1)) break;
-                    }
-                    if (k == (i - 1)) break;
-                }
-                if (j == (i - 1)) break;
-            }
-        }
-        for (int[] ar : set2) {
-            System.out.print(Arrays.toString(ar));
-            System.out.println();
-        }
-        System.out.println();
-        System.out.println(" Set 1 : ");
-        for (int a : set) {
-            System.out.print(a + " ");
-        }
-        System.out.println();
-        return set2.size() * 8;
-    }
 
     static class pair {
         int r, c;
@@ -10541,11 +10494,78 @@ public class Lcode {
     }
 
 
+    static class PackedValue {
+        int a, b;
+
+        PackedValue(int a, int b) {
+            this.a = a;
+            this.b = b;
+        }
+    }
+
+    public int tupleSameProduct(int[] nums) {
+        var map = new HashMap<Integer, List<PackedValue>>();
+
+        int count = 0;
+        for (int i = 0; i < nums.length; i++) {
+            for (int j = i + 1; j < nums.length; j++) {
+                int product = nums[i] * nums[j];
+                List<PackedValue> list = map.getOrDefault(product, new ArrayList<>());
+                count += list.size();
+                list.add(new PackedValue(i, j));
+                map.put(product, list);
+            }
+        }
+        return count * 8;
+    }
+
+    public int mostBooked(int n, int[][] meetings) {
+        Arrays.sort(meetings, Comparator.comparingInt(a -> a[0]));
+        PriorityQueue<Integer> freeRooms = new PriorityQueue<>();
+        PriorityQueue<long[]> busyRooms = new PriorityQueue<>(
+                (a, b) -> a[1] == b[1]
+                        ? Long.compare(a[0], b[0])
+                        : Long.compare(a[1], b[1])
+        );
+
+        for (int i = 0; i < n; i++) {
+            freeRooms.add(i);
+            busyRooms.add(new long[]{i, 0, 0});
+        }
+
+        int maxCount = 0;
+        int ansRoom = 0;
+
+        for (int[] m : meetings) {
+            long start = m[0], end = m[1];
+
+            while (!busyRooms.isEmpty() && busyRooms.peek()[1] <= start)
+                freeRooms.add((int) busyRooms.poll()[0]);
+
+            long[] room;
+            if (!freeRooms.isEmpty()) room = new long[]{freeRooms.poll(), end, 1};
+            else {
+                room = busyRooms.poll();
+                room[1] += (end - start);
+                room[2]++;
+            }
+
+            if (room[2] > maxCount ||
+                    (room[2] == maxCount && room[0] < ansRoom)) {
+                maxCount = (int) room[2];
+                ansRoom = (int) room[0];
+            }
+            busyRooms.add(room);
+        }
+        return ansRoom;
+    }
+
     /// /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     public static void main(String[] args) {
         Lcode l = new Lcode();
+        System.out.println(l.tupleSameProduct(new int[]{2, 3, 4, 6}));
 
-        System.out.println(l.findShortestSubArray(new int[]{1, 2, 2, 3, 1}));
+//        System.out.println(l.findShortestSubArray(new int[]{1, 2, 2, 3, 1}));
 //        System.out.println(l.findMaxLength(new int[]{0, 1, 1, 1, 1, 1, 0, 0, 0}));
 //        System.out.println(l.sumSubarrayMins(new int[]{3,1,2,4}));
 //        System.out.println(l.totalSteps2(new int[]{5,3,4,4,7,3,6,11,8,5,11}));
@@ -11387,8 +11407,7 @@ class ZeroEvenOdd {
         for (int i = 1; i <= n; i += 2) {
             z.acquire();
             printNumber.accept(0);
-            if (i % 2 == 0) e.release();
-            else o.release();
+            o.release();
         }
     }
 
