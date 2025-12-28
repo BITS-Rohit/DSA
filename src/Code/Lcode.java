@@ -10560,6 +10560,22 @@ public class Lcode {
         return ansRoom;
     }
 
+    public int countNegatives(int[][] grid) {
+        int m = grid.length, n = grid[0].length, ans = 0;
+        for (int[] row : grid) {
+            int l = 0, r = n - 1, firstNeg = n;
+            while (l <= r) {
+                int mid = l + (r - l) / 2;
+                if (row[mid] < 0) {
+                    firstNeg = mid;
+                    r = mid - 1;
+                } else l = mid + 1;
+            }
+            ans += n - firstNeg;
+        }
+        return ans;
+    }
+
     /// /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     public static void main(String[] args) {
         Lcode l = new Lcode();
