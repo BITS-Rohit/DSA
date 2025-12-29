@@ -10576,6 +10576,26 @@ public class Lcode {
         return ans;
     }
 
+    public boolean pyramidTransition(String bottom, List<String> allowed) {
+        Map<String, Set<Character>> map = new HashMap<>();
+        for (String x : allowed) {
+            map.computeIfAbsent(x.substring(0, 2), k -> new HashSet<>()).add(x.charAt(2));
+        }
+        return dfs(bottom, "", map);
+    }
+
+    private boolean dfs(String current, String next, Map<String, Set<Character>> map) {
+        if (current.length() == 1) return true;
+        if (next.length() == current.length() - 1) return dfs(next, "", map);
+        String key = current.substring(next.length(), next.length() + 2);
+        if (map.containsKey(key))
+            for (Character c : map.get(key))
+                if (dfs(current, next + c, map))
+                    return true;
+
+        return false;
+    }
+
     /// /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     public static void main(String[] args) {
         Lcode l = new Lcode();
