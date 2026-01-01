@@ -10681,7 +10681,7 @@ public class Lcode {
     /// /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     public static void main(String[] args) {
         Lcode l = new Lcode();
-        System.out.println(l.tupleSameProduct(new int[]{2, 3, 4, 6}));
+//        System.out.println(l.tupleSameProduct(new int[]{2, 3, 4, 6}));
 
 //        System.out.println(l.findShortestSubArray(new int[]{1, 2, 2, 3, 1}));
 //        System.out.println(l.findMaxLength(new int[]{0, 1, 1, 1, 1, 1, 0, 0, 0}));
