@@ -10640,7 +10640,7 @@ public class Lcode {
     }
 
     int R, C;
-    int[][] dirs = {{1,0},{-1,0},{0,1},{0,-1}};
+//    int[][] dirs = {{1,0},{-1,0},{0,1},{0,-1}};
 
     public int latestDayToCross(int row, int col, int[][] cells) {
         R = row; C = col;
@@ -10678,9 +10678,25 @@ public class Lcode {
         return false;
     }
 
+    public int repeatedNTimes(int[] nums) {
+        var n = nums.length/2;
+        var unique = n+1;
+
+        int max = 0 ;
+        for(int x : nums)max= Math.max(max , x);
+
+        var arr = new int[max+1];
+        for(int x : nums){
+            arr[x]++;
+            if(arr[x] == n)return x;
+        }
+        return -1;
+    }
+
     /// /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     public static void main(String[] args) {
         Lcode l = new Lcode();
+//        System.out.println(l.repeatedNTimes(new int[]{1,2,3,3}));
 //        System.out.println(l.tupleSameProduct(new int[]{2, 3, 4, 6}));
 
 //        System.out.println(l.findShortestSubArray(new int[]{1, 2, 2, 3, 1}));
