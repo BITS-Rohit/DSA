@@ -10621,20 +10621,20 @@ public class Lcode {
             }
         }
 
-        int row1 = grid[r][c] + grid[r][c+1] + grid[r][c+2];
-        int row2 = grid[r+1][c] + grid[r+1][c+1] + grid[r+1][c+2];
-        int row3 = grid[r+2][c] + grid[r+2][c+1] + grid[r+2][c+2];
+        int row1 = grid[r][c] + grid[r][c + 1] + grid[r][c + 2];
+        int row2 = grid[r + 1][c] + grid[r + 1][c + 1] + grid[r + 1][c + 2];
+        int row3 = grid[r + 2][c] + grid[r + 2][c + 1] + grid[r + 2][c + 2];
 
         if (row1 != 15 || row2 != 15 || row3 != 15) return false;
 
-        int col1 = grid[r][c] + grid[r+1][c] + grid[r+2][c];
-        int col2 = grid[r][c+1] + grid[r+1][c+1] + grid[r+2][c+1];
-        int col3 = grid[r][c+2] + grid[r+1][c+2] + grid[r+2][c+2];
+        int col1 = grid[r][c] + grid[r + 1][c] + grid[r + 2][c];
+        int col2 = grid[r][c + 1] + grid[r + 1][c + 1] + grid[r + 2][c + 1];
+        int col3 = grid[r][c + 2] + grid[r + 1][c + 2] + grid[r + 2][c + 2];
 
         if (col1 != 15 || col2 != 15 || col3 != 15) return false;
 
-        int d1 = grid[r][c] + grid[r+1][c+1] + grid[r+2][c+2];
-        int d2 = grid[r][c+2] + grid[r+1][c+1] + grid[r+2][c];
+        int d1 = grid[r][c] + grid[r + 1][c + 1] + grid[r + 2][c + 2];
+        int d2 = grid[r][c + 2] + grid[r + 1][c + 1] + grid[r + 2][c];
 
         return d1 == 15 && d2 == 15;
     }
@@ -10643,12 +10643,14 @@ public class Lcode {
 //    int[][] dirs = {{1,0},{-1,0},{0,1},{0,-1}};
 
     public int latestDayToCross(int row, int col, int[][] cells) {
-        R = row; C = col;
+        R = row;
+        C = col;
         int lo = 0, hi = cells.length, ans = 0;
         while (lo <= hi) {
             int mid = (lo + hi) / 2;
             if (canCross(mid, cells)) {
-                ans = mid; lo = mid + 1;
+                ans = mid;
+                lo = mid + 1;
             } else hi = mid - 1;
         }
         return ans;
@@ -10657,21 +10659,24 @@ public class Lcode {
     boolean canCross(int day, int[][] cells) {
         boolean[][] water = new boolean[R][C];
         for (int i = 0; i < day; i++)
-            water[cells[i][0]-1][cells[i][1]-1] = true;
+            water[cells[i][0] - 1][cells[i][1] - 1] = true;
 
         ArrayDeque<int[]> q = new ArrayDeque<>();
         boolean[][] vis = new boolean[R][C];
         for (int c = 0; c < C; c++)
-            if (!water[0][c]) { q.add(new int[]{0,c}); vis[0][c] = true; }
+            if (!water[0][c]) {
+                q.add(new int[]{0, c});
+                vis[0][c] = true;
+            }
 
         while (!q.isEmpty()) {
             int[] cur = q.poll();
-            if (cur[0] == R-1) return true;
+            if (cur[0] == R - 1) return true;
             for (int[] d : dirs) {
                 int nr = cur[0] + d[0], nc = cur[1] + d[1];
-                if (nr>=0 && nr<R && nc>=0 && nc<C && !water[nr][nc] && !vis[nr][nc]) {
+                if (nr >= 0 && nr < R && nc >= 0 && nc < C && !water[nr][nc] && !vis[nr][nc]) {
                     vis[nr][nc] = true;
-                    q.add(new int[]{nr,nc});
+                    q.add(new int[]{nr, nc});
                 }
             }
         }
@@ -10679,23 +10684,121 @@ public class Lcode {
     }
 
     public int repeatedNTimes(int[] nums) {
-        var n = nums.length/2;
-        var unique = n+1;
+        var n = nums.length / 2;
+        var unique = n + 1;
 
-        int max = 0 ;
-        for(int x : nums)max= Math.max(max , x);
+        int max = 0;
+        for (int x : nums) max = Math.max(max, x);
 
-        var arr = new int[max+1];
-        for(int x : nums){
+        var arr = new int[max + 1];
+        for (int x : nums) {
             arr[x]++;
-            if(arr[x] == n)return x;
+            if (arr[x] == n) return x;
         }
         return -1;
+    }
+
+    public int numOfWays(int n) {
+        var arr = new int[n][3];
+        var dp = new int[n][3][4]; // Storing pre , cur key
+        return rec(arr, 0, 0, 0, dp);
+    }
+
+    int rec(int[][] arr, int i, int j, int pre, int[][][] dp) {
+        if (i == arr.length) return 1;
+
+        if (dp[i][j][pre] != 0) return dp[i][j][pre];
+        int ways = 0;
+
+        int[] Possible = getPossible(i, j, pre, arr);
+
+        for (int[] dir : dirs) {
+            int nx = dir[0] + i;
+            int ny = dir[1] + j;
+
+            if (nx > -1 && ny > -1 && nx < arr.length && ny < arr.length) {
+                for (int color : Possible) {
+                    arr[i][j] = color;
+                    ways += rec(arr, nx, ny, color, dp);
+                }
+            }
+        }
+        dp[i][j][pre] = ways;
+        return dp[i][j][pre];
+    }
+
+    int[] getPossible(int i, int j, int color, int[][] arr) {
+        if (color == 0) return new int[]{1, 2, 3};
+
+        int n = 0;
+        int one = color == 1 ? -1 : 1;
+        n = one == -1 ? n : n++;
+
+        int two = color == 2 ? -1 : 2;
+        n = two == -1 ? n : n++;
+
+        int three = color == 3 ? -1 : 3;
+        n = three == -1 ? n : n++;
+
+        int[] ans = new int[n];
+        n = 0;
+
+        if (one != -1 && checkColor(i, j, arr, 1)) ans[n++] = 1;
+        if (two != -1 && checkColor(i, j, arr, 1)) ans[n++] = 2;
+        if (three != -1 && checkColor(i, j, arr, 1)) ans[n++] = 3;
+
+        return ans; // only 2 valid answer when pre != -1
+    }
+
+    boolean checkColor(int i, int j, int[][] arr, int color) {
+        for (int[] dir : dirs) {
+            int nx = dir[0] + i;
+            int ny = dir[1] + j;
+
+            if (nx > -1 && ny > -1
+                    && nx < arr.length
+                    && ny < arr.length
+                    && arr[nx][ny] == color)
+                return false;
+        }
+        return true;
+    }
+
+    public int sumFourDivisors(int[] nums) {
+        // Maybe we can use a Map with 2 sized array [fact_len , sum]
+        int sum = 0;
+        for(int x : nums){
+            int[] ans = getArray(x);
+            if (ans[0]==2)sum+=ans[1];
+        }
+        return sum; // space -> O (2n)-> O(n)
+    }
+
+    int[] getArray(int x) {
+        int len = 0;
+        int sum = 0;
+
+        for (int i = 2; i * i <= x; i++) {
+            if (x % i == 0) {
+                len++;
+                sum += i;
+
+                int pair = x / i;
+                if (i != pair) {
+                    len++;
+                    sum += pair;
+                }
+            }
+            if (len > 2)break;
+        }
+
+        return new int[]{len, sum + 1 + x};
     }
 
     /// /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     public static void main(String[] args) {
         Lcode l = new Lcode();
+        System.out.println(l.sumFourDivisors(new int[]{21, 4, 7 }));
 //        System.out.println(l.repeatedNTimes(new int[]{1,2,3,3}));
 //        System.out.println(l.tupleSameProduct(new int[]{2, 3, 4, 6}));
 
